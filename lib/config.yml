@@ -1,0 +1,26 @@
+1 :
+   nom : "Affichage de base"
+   nomClasse : "tier.AffichageDeBase"
+   autorun : false
+   params : []
+   requirements : []
+   dependances : "RDV Smarts"
+2 :
+   nom : "RDV Smarts"
+   nomClasse : "appliDemo.Demo"
+   autorun : true
+   params : []
+   requirements : ["Affichage de base"]
+3 :
+   nom : "Affichage mieux"
+   nomClasse : "tier.AffichageMieux"
+   autorun : false
+   params : []
+   requirements : []
+   dependances : "RDV Smarts"
+4 :
+   nom : "JFrame"
+   nomClasse : "tier.WindowFrame"
+   autorun : true
+   params : []
+   requirements : []
