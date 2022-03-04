@@ -1,0 +1,23 @@
+1 :
+   nom : "Agenda"
+   nomClasse : "agenda.application.Agenda"
+   interface: ""
+   autorun : true
+   params : []
+   requirements : ["Test Plugin"]
+2 :
+   nom : "Test Plugin"
+   nomClasse : "agenda.tiers.TestPlugin"
+   interface: "agenda.application.interfaces.DisplayInterface"
+   autorun : false
+   params : []
+   requirements : []
+   dependances : "Agenda"
+3 :
+   nom : "Test Plugin 2"
+   nomClasse : "agenda.tiers.TestPlugin2"
+   interface: "agenda.application.interfaces.DisplayInterface"
+   autorun : false
+   params : []
+   requirements : []
+   dependances : "Agenda"
