@@ -27,6 +27,17 @@ public class Descripteur {
     /** The interface. */
     protected String interfaceImpl;
 
+    protected boolean defaultPlugin;
+
+    public boolean isDefaultPlugin() {
+        return defaultPlugin;
+    }
+
+    public void setDefaultPlugin(boolean defaultPlugin) {
+        this.defaultPlugin = defaultPlugin;
+    }
+
+
     public String getName() {
         return name;
     }

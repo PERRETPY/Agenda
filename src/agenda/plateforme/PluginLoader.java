@@ -16,18 +16,22 @@ public class PluginLoader {
     /** The descripteurs. */
     private HashMap<String, Descripteur> descripteurs;
 
+
     /** The Constant INSTANCE. */
     private static final PluginLoader INSTANCE = new PluginLoader();
 
     public HashMap<String, Descripteur> getLoadedPlugin() {
+        HashMap<String, Descripteur> loadedPlugin = new HashMap<String, Descripteur>();
+        HashMap<String, Descripteur> Descripteur = INSTANCE.getDescripteurs();
+
+        for (Map.Entry<String, Descripteur> stringDescripteurEntry : Descripteur.entrySet()) {
+            if(stringDescripteurEntry.getValue().isLoaded()) {
+                loadedPlugin.put(stringDescripteurEntry.getKey(), stringDescripteurEntry.getValue());
+            }
+        }
+
         return loadedPlugin;
     }
-
-    public void setLoadedPlugin(HashMap<String, Descripteur> loadedPlugin) {
-        this.loadedPlugin = loadedPlugin;
-    }
-
-    private HashMap<String, Descripteur> loadedPlugin;
 
     /**
      * Instantiates a new plugin loader.
@@ -69,8 +73,12 @@ public class PluginLoader {
      */
     public static void main(String[] args) {
         PluginLoader loader = PluginLoader.getInstance();
+
         // Chargement des descripteurs
         loader.chargerDescripteurs();
+
+        setDefaultPluginLoaded();
+
         // Lancement des plugins autorun
         loader.loadAutoRun();
         // loader.notifyInit();
@@ -84,21 +92,14 @@ public class PluginLoader {
     private void loadAutoRun() {
         // Parcours des descripteurs chargés
         for (Descripteur d : descripteurs.values()) {
-            System.out.println("Hello ? : " + d.getName());
-
             // On regarde les plugins flaggés autorun
             if (d.isAutoRun()) {
-                System.out.println(d.getName() + " is autorun");
-                if (d.getRequirements() != null) {
-                    System.out.println(d.getName() + " has requirements");
-
+                /*if (d.getRequirements() != null) {
                     for (Descripteur descripteurRequire : getRequirementDescripteur(d).values()) {
-                        System.out.println(descripteurRequire.getName() + " is a requirement");
                         loadPlugin(descripteurRequire);
                     }
 
-                }
-                System.out.println(d.getName() + " Chargé");
+                }*/
                 loadPlugin(d);
             }
         }
@@ -106,7 +107,6 @@ public class PluginLoader {
 
     private void loadPlugin(Descripteur descripteur) {
         try {
-            System.out.println("Plugin " + descripteur.getName() + " chargé");
             Thread t = new Thread((Runnable) this.recupererPlugin(descripteur, null));
             t.start();
         } catch (SecurityException | IllegalArgumentException e) {
@@ -141,7 +141,9 @@ public class PluginLoader {
                 Descripteur descripteur = new Descripteur();
                 descripteur.setName((String) pluginMap.get("nom"));
                 descripteur.setClassName((String) pluginMap.get("nomClasse"));
+                descripteur.setInterfaceImpl((String) pluginMap.get("interface"));
                 descripteur.setAutoRun((Boolean) pluginMap.get("autorun"));
+                descripteur.setDefaultPlugin((Boolean) pluginMap.get("defaultPlugin"));
                 List<String> reqs = (List<String>) pluginMap.get("requirements");
                 if (reqs == null || !reqs.isEmpty()) {
                     descripteur.setRequirements(reqs);
@@ -183,7 +185,6 @@ public class PluginLoader {
     }
 
     public HashMap<String, Descripteur> getRequirementDescripteur(Descripteur plugin) {
-        System.out.println("Hello from getRequirementDescripteur");
         List<String> requirementList = plugin.getRequirements();
         HashMap<String, Descripteur> requirements = new HashMap<String, Descripteur>();
         HashMap<String, Descripteur> descripteurList = INSTANCE.getDescripteurs();
@@ -240,20 +241,76 @@ public class PluginLoader {
     public static Object getLoadPluginByInterface(Class<?> interfaceSearch) {
         HashMap<String, Descripteur> pluginLoad = INSTANCE.getLoadedPlugin();
         HashMap<String, Descripteur> descripteursByInterface = getDescripteurListByInterface(interfaceSearch);
-        Descripteur loadPlugindescriptor = null;
+        Descripteur loadPluginDescriptor = null;
 
         for (Map.Entry<String, Descripteur> stringDescripteurEntry : descripteursByInterface.entrySet()) {
             Descripteur descripteur = stringDescripteurEntry.getValue();
-            if(pluginLoad.containsKey(descripteur.getName())) {
-                loadPlugindescriptor = pluginLoad.get(descripteur.getName());
+
+            if(pluginLoad != null && pluginLoad.containsKey(descripteur.getName())) {
+                loadPluginDescriptor = pluginLoad.get(descripteur.getName());
             }
         }
 
-        if(loadPlugindescriptor != null) {
-            return recupererPlugin(loadPlugindescriptor, null);
+        if(loadPluginDescriptor != null) {
+            Object result = null;
+
+            Class<?> plClass;
+            try {
+                plClass = Class.forName(loadPluginDescriptor.getClassName());
+                if (!interfaceSearch.isAssignableFrom(plClass)) {
+                    return null;
+                }
+                result = plClass.getDeclaredConstructor().newInstance();
+
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+            return result;
+
+
         }else {
             return null;
         }
+    }
+
+    public static void loadPluginInList(String pluginName) {
+        Descripteur pluginNeedToBeLoad = INSTANCE.descripteurs.get(pluginName);
+        String interfaceName = pluginNeedToBeLoad.getInterfaceImpl();
+
+        unloadPluginByInterface(interfaceName);
+
+
+        if (pluginNeedToBeLoad != null) {
+            pluginNeedToBeLoad.setLoaded(true);
+            INSTANCE.descripteurs.put(pluginName, pluginNeedToBeLoad);
+        }
+    }
+
+    public static void unloadPluginByInterface(String interfaceName) {
+        HashMap<String, Descripteur> descripteurList = INSTANCE.getDescripteurs();
+        for (Map.Entry<String, Descripteur> stringDescripteurEntry : descripteurList.entrySet()) {
+            if (stringDescripteurEntry.getValue().getInterfaceImpl().equals(interfaceName)
+                && stringDescripteurEntry.getValue().isLoaded()) {
+                Descripteur dsc = stringDescripteurEntry.getValue();
+                dsc.setLoaded(false);
+                descripteurList.put(dsc.getName(), dsc);
+            }
+        }
+    }
+
+    public static void setDefaultPluginLoaded() {
+        HashMap<String, Descripteur> descripteurList = INSTANCE.getDescripteurs();
+        if(descripteurList != null) {
+            for (Map.Entry<String, Descripteur> stringDescripteurEntry : descripteurList.entrySet()) {
+                if (stringDescripteurEntry.getValue().isDefaultPlugin()) {
+                    loadPluginInList(stringDescripteurEntry.getKey());
+                } else {
+                }
+            }
+        }
+
     }
 
     public static HashMap<String, Descripteur> getDescripteurListByInterface(Class<?> interfaceSearch) {
@@ -264,11 +321,10 @@ public class PluginLoader {
 
         for (Map.Entry<String, Descripteur> stringDescripteurEntry : descripteurList.entrySet()) {
             Descripteur descripteur = stringDescripteurEntry.getValue();
-            if (descripteur.getInterfaceImpl().equals(interfaceName)) {
+            if (descripteur.getInterfaceImpl() != null && descripteur.getInterfaceImpl().equals(interfaceName)) {
                 descripteurListByInterface.put(descripteur.getName(), descripteur);
             }
         }
-
         return descripteurListByInterface;
     }
 
