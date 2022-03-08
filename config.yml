@@ -24,3 +24,12 @@
    requirements : []
    dependances : "Agenda"
    defaultPlugin: false
+4 :
+   nom : "Load Data Plugin"
+   nomClasse : "agenda.tiers.LoadDataPlugin"
+   interface: "agenda.application.interfaces.CrudDataInterface"
+   autorun : false
+   params : []
+   requirements : []
+   dependances : "Agenda"
+   defaultPlugin: true

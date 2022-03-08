@@ -277,12 +277,10 @@ public class PluginLoader {
 
     public static void loadPluginInList(String pluginName) {
         Descripteur pluginNeedToBeLoad = INSTANCE.descripteurs.get(pluginName);
-        String interfaceName = pluginNeedToBeLoad.getInterfaceImpl();
-
-        unloadPluginByInterface(interfaceName);
-
-
         if (pluginNeedToBeLoad != null) {
+            String interfaceName = pluginNeedToBeLoad.getInterfaceImpl();
+
+            unloadPluginByInterface(interfaceName);
             pluginNeedToBeLoad.setLoaded(true);
             INSTANCE.descripteurs.put(pluginName, pluginNeedToBeLoad);
         }
