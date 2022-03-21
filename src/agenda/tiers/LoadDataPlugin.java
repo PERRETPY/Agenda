@@ -66,7 +66,7 @@ public class LoadDataPlugin implements CrudDataInterface {
     @Override
     public List<Event> getAllEventList() {
         List<Object> objList = loadData(strPathToDataEvent, Event.class);
-
+        this.eventList = new ArrayList<>();
         for(int i=0 ; i<objList.size() ; i++) {
             Object obj = objList.get(i);
             this.eventList.add((Event) obj);

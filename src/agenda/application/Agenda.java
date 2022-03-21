@@ -43,11 +43,11 @@ public class Agenda implements Runnable {
         t.start();
 
         System.out.println("Hello world!");
-        System.out.println("Plugin : " + displayInterface.test());
+        //System.out.println("Plugin : " + displayInterface.test());
 
         PluginLoader.loadPluginInList("Test Plugin 2");
         displayInterface = (DisplayInterface) PluginLoader.getLoadPluginByInterface(DisplayInterface.class);
-        System.out.println("Plugin : " + displayInterface.test());
+        //System.out.println("Plugin : " + displayInterface.test());
 
         this.personList = crudDataInterface.getAllPersonList();
 

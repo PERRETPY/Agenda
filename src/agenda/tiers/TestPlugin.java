@@ -1,14 +1,15 @@
 package agenda.tiers;
 
-import agenda.application.interfaces.DisplayInterface;
 
-public class TestPlugin implements DisplayInterface {
+import agenda.application.interfaces.UpdateInterface;
+
+public class TestPlugin implements UpdateInterface {
 
     public TestPlugin() {
 
     }
 
-    @Override
+    
     public String test() {
         return "Hello from TestPlugin";
     }

@@ -28,7 +28,17 @@ public class Descripteur {
     protected String interfaceImpl;
 
     protected boolean defaultPlugin;
+    
+    protected boolean headerButton;
 
+    public boolean isHeaderButton() {
+        return headerButton;
+    }
+
+    public void setHeaderButton(boolean headerButton) {
+        this.headerButton = headerButton;
+    }
+    
     public boolean isDefaultPlugin() {
         return defaultPlugin;
     }

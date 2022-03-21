@@ -1,9 +1,9 @@
 package agenda.tiers;
 
-import agenda.application.interfaces.DisplayInterface;
+import agenda.application.interfaces.UpdateInterface;
 
-public class TestPlugin2 implements DisplayInterface, Runnable {
-    @Override
+public class TestPlugin2 implements UpdateInterface, Runnable {
+    
     public String test() {
         return "Hello from TestPlugin2";
     }

@@ -6,24 +6,8 @@
    params : []
    requirements : ["Test Plugin"]
    defaultPlugin: false
-2 :
-   nom : "Test Plugin"
-   nomClasse : "agenda.tiers.TestPlugin"
-   interface: "agenda.application.interfaces.DisplayInterface"
-   autorun : false
-   params : []
-   requirements : []
-   dependances : "Agenda"
-   defaultPlugin: true
-3 :
-   nom : "Test Plugin 2"
-   nomClasse : "agenda.tiers.TestPlugin2"
-   interface: "agenda.application.interfaces.DisplayInterface"
-   autorun : false
-   params : []
-   requirements : []
-   dependances : "Agenda"
-   defaultPlugin: false
+   headerButton: false
+
 4 :
    nom : "Load Data Plugin"
    nomClasse : "agenda.tiers.LoadDataPlugin"
@@ -33,3 +17,34 @@
    requirements : []
    dependances : "Agenda"
    defaultPlugin: true
+   headerButton: false
+5 :
+   nom : "Liste des events"
+   nomClasse : "agenda.tiers.DisplayListEvent"
+   interface: "agenda.application.interfaces.DisplayInterface"
+   autorun : false
+   params : []
+   requirements : []
+   dependances : "Agenda"
+   defaultPlugin: false
+   headerButton: true
+6 :
+   nom : "Tableau des events"
+   nomClasse : "agenda.tiers.DisplayTabEvent"
+   interface: "agenda.application.interfaces.DisplayInterface"
+   autorun : false
+   params : []
+   requirements : []
+   dependances : "Agenda"
+   defaultPlugin: false
+   headerButton: true
+7 :
+   nom : "Nouveau evenement"
+   nomClasse : "agenda.tiers.CreateEvent"
+   interface: "agenda.application.interfaces.CreateInterface"
+   autorun : false
+   params : []
+   requirements : []
+   dependances : "Agenda"
+   defaultPlugin: false
+   headerButton: true

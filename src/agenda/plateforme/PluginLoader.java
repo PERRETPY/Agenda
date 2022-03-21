@@ -131,7 +131,7 @@ public class PluginLoader {
 
             InputStream inputStream = new FileInputStream(CONF_PATH);
 
-            configMap = yaml.load(inputStream);
+            configMap = (HashMap) yaml.load(inputStream);
 
             // Parcours du fichier de conf
             Set<Integer> keys = configMap.keySet();
@@ -144,6 +144,7 @@ public class PluginLoader {
                 descripteur.setInterfaceImpl((String) pluginMap.get("interface"));
                 descripteur.setAutoRun((Boolean) pluginMap.get("autorun"));
                 descripteur.setDefaultPlugin((Boolean) pluginMap.get("defaultPlugin"));
+                descripteur.setHeaderButton((Boolean) pluginMap.get("headerButton"));
                 List<String> reqs = (List<String>) pluginMap.get("requirements");
                 if (reqs == null || !reqs.isEmpty()) {
                     descripteur.setRequirements(reqs);
@@ -274,6 +275,25 @@ public class PluginLoader {
             return null;
         }
     }
+    
+	public static Object loadPluginsFor(Descripteur descripteurPlugin , Object [] args) {
+		Class c;
+		Constructor constructor;
+		Object plugin= null;
+		try {
+			c = Class.forName(descripteurPlugin.getClassName());
+			if(descripteurPlugin.getArgs()!=null) {
+				constructor = c.getConstructor(descripteurPlugin.getArgs());
+			}else {
+				constructor = c.getConstructor(null);
+			}
+			plugin = constructor.newInstance(args);
+			
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException | SecurityException | IllegalArgumentException | InvocationTargetException e) {
+			e.printStackTrace();
+		}		
+		return plugin;
+	}
 
     public static void loadPluginInList(String pluginName) {
         Descripteur pluginNeedToBeLoad = INSTANCE.descripteurs.get(pluginName);

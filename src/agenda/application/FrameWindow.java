@@ -1,5 +1,6 @@
 package agenda.application;
 
+import agenda.application.interfaces.CreateInterface;
 import agenda.application.interfaces.CrudDataInterface;
 import agenda.application.interfaces.DisplayInterface;
 import agenda.models.Event;
@@ -17,14 +18,23 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-public class FrameWindow implements DisplayInterface, Runnable {
+public class FrameWindow implements  Runnable {
     private JFrame mainFrame;
+    private JPanel mainPanel;
     private JLabel headerLabel;
     private JLabel statusLabel;
     private JPanel controlPanel;
     private JLabel msglabel;
-    private DisplayInterface displayInterface;
+    private Object displayInterface;
+    private Object pluginActif;
     private CrudDataInterface crudDataInterface;
+    private JComponent displayComponent;
+    private Object component;
+    private List<Event> allEventList;
+    private Box headerBox;
+    private Box topSeparatorBox;
+    private Box contentBox;
+    private List<JButton> allPluginButton;
 
     public FrameWindow() {
         this.displayInterface = getDisplayInterface();
@@ -32,15 +42,81 @@ public class FrameWindow implements DisplayInterface, Runnable {
         this.initFrame();
     }
 
-    @Override
-    public String test() {
-        return null;
-    }
 
     private void initFrame() {
         this.mainFrame = new JFrame("Agenda");
-        this.mainFrame.setSize(400,400);
-        this.mainFrame.setLayout(new GridLayout(3, 1));
+        this.mainFrame.setSize(900,600);
+        
+        this.mainPanel =  new JPanel();
+        this.mainPanel.setLayout(new BoxLayout(this.mainPanel, BoxLayout.Y_AXIS));
+        headerBox = new Box(BoxLayout.X_AXIS);
+        topSeparatorBox = new Box(BoxLayout.X_AXIS);
+        contentBox = new Box(BoxLayout.X_AXIS);
+        //Box bottomSeparatorBox = new Box(BoxLayout.X_AXIS);
+        //Box footerBox = new Box(BoxLayout.X_AXIS);
+        
+        HashMap<String, Descripteur> descriptorList = PluginLoader.getInstance().getDescripteurs();
+        Iterator it = descriptorList.entrySet().iterator();
+        allPluginButton = new ArrayList<JButton>();
+        
+        
+        while (it.hasNext()) {
+            HashMap.Entry<String, Descripteur> entry = (HashMap.Entry)it.next();
+            Descripteur descripteur = entry.getValue();
+            if (descripteur.isHeaderButton()) {
+                JButton btn = new JButton(descripteur.getName());
+                btn.setForeground(Color.WHITE);
+                btn.setBackground(new Color(70, 137, 112));
+        		//create.setOpaque(true);
+                btn.setBorderPainted(false);
+                btn.setFont(new Font("Arial", Font.PLAIN, 15)); 
+                btn.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        //PluginLoader.loadPluginInList(descripteur.getName());
+                    	pluginActif = PluginLoader.loadPluginsFor(descripteur,null);
+                        //displayInterface = getDisplayInterface();
+                        //statusLabel.setText(displayInterface.test());
+                        //mainFrame.repaint();
+                        //mainFrame.remove(displayComponent);
+                        //displayInterface = getDisplayInterface();
+                        if (pluginActif instanceof DisplayInterface ) {
+                        	allEventList = getAllEventList();
+                        	component = ((DisplayInterface) pluginActif).displayEventList(allEventList);
+                        }
+                        if (pluginActif instanceof CreateInterface ) {
+                        	component = ((CreateInterface) pluginActif).createForm();
+                        }
+                        if (component != null) {
+                        	contentBox.removeAll();
+                        	contentBox.add((Component) component);
+                            mainFrame.revalidate();
+                            mainFrame.repaint();
+                        }
+                        
+                        
+                    }
+                });
+                allPluginButton.add(btn);
+                headerBox.add(btn);
+            }
+        }
+        
+        
+        
+        topSeparatorBox.add(new JSeparator());
+        //contentBox.add(new JTextField(""));
+        this.mainPanel.add(headerBox);
+        this.mainPanel.add(topSeparatorBox);
+        this.mainPanel.add(contentBox);
+        //this.mainPanel.add(bottomSeparatorBox);
+        //this.mainPanel.add(footerBox);
+        
+        
+
+
+        
+        this.mainFrame.setContentPane(this.mainPanel);
+        //this.mainFrame.setLayout(new GridLayout(3, 1));
 
         this.headerLabel = new JLabel("",JLabel.CENTER );
         this.statusLabel = new JLabel("",JLabel.CENTER);
@@ -59,6 +135,8 @@ public class FrameWindow implements DisplayInterface, Runnable {
         this.mainFrame.add(this.statusLabel);
         this.mainFrame.setVisible(true);
     }
+    
+/*
 
     private void showGridEvent() {
         List<Event> allEventList = getAllEventList();
@@ -76,7 +154,7 @@ public class FrameWindow implements DisplayInterface, Runnable {
 
         panel.setLayout(layout);
 
-        for(int i=0 ; i<allEventList.size() ; i++) {
+        for(int i=0 ; i<allEventList.size()  ; i++){
             JLabel statusLabel = new JLabel(allEventList.get(i).getTitleEvent(),JLabel.CENTER);
             panel.add(statusLabel);
             allEventIdList.add(String.valueOf(allEventList.get(i).getIdEvent()));
@@ -85,14 +163,11 @@ public class FrameWindow implements DisplayInterface, Runnable {
         this.controlPanel.add(panel);
     }
 
-    private List<Event> getAllEventList() {
-        return this.crudDataInterface.getAllEventList();
-    }
 
     private void showGridLayoutDemo() {
         List<Event> allEventList = this.getAllEventList();
         //DisplayInterface displayInterface = (DisplayInterface) PluginLoader.getLoadPluginByInterface(DisplayInterface.class);
-        this.headerLabel.setText("Hello : " + this.displayInterface.test());
+        //this.headerLabel.setText("Hello : " + this.displayInterface.test());
         //statusLabel.setText(this.displayInterface.test());
 
         JPanel panel = new JPanel();
@@ -117,7 +192,7 @@ public class FrameWindow implements DisplayInterface, Runnable {
                     public void actionPerformed(ActionEvent e) {
                         PluginLoader.loadPluginInList(descripteur.getName());
                         displayInterface = getDisplayInterface();
-                        statusLabel.setText(displayInterface.test());
+                       // statusLabel.setText(displayInterface.test());
                         mainFrame.repaint();
                     }
                 });
@@ -137,13 +212,7 @@ public class FrameWindow implements DisplayInterface, Runnable {
         this.mainFrame.setVisible(true);
     }
 
-    private DisplayInterface getDisplayInterface() {
-        return (DisplayInterface) PluginLoader.getLoadPluginByInterface(DisplayInterface.class);
-    }
 
-    private CrudDataInterface getCrudDataInterface() {
-        return (CrudDataInterface) PluginLoader.getLoadPluginByInterface(CrudDataInterface.class);
-    }
 
     private List<String> fromEventToEventId(List<Event> eventList) {
         List<String> eventIdList = new ArrayList<>();
@@ -153,13 +222,27 @@ public class FrameWindow implements DisplayInterface, Runnable {
         }
         return eventIdList;
     }
+*/
+    private DisplayInterface getDisplayInterface() {
+        return (DisplayInterface) PluginLoader.getLoadPluginByInterface(DisplayInterface.class);
+    }
 
+    private CrudDataInterface getCrudDataInterface() {
+        return (CrudDataInterface) PluginLoader.getLoadPluginByInterface(CrudDataInterface.class);
+    }
+    private List<Event> getAllEventList() {
+        return this.crudDataInterface.getAllEventList();
+    }
+    
     @Override
     public void run() {
-        this.initFrame();
-        FrameWindow frameWindow = new FrameWindow();
-        frameWindow.showGridLayoutDemo();
-        frameWindow.showGridEvent();
+        //this.initFrame();
+        //FrameWindow frameWindow = new FrameWindow();
+        //frameWindow.showGridLayoutDemo();
+        //frameWindow.showGridEvent();
+    	if(allPluginButton.size()>0) {
+    		allPluginButton.get(0).doClick();
+    	}
     }
 
 }
