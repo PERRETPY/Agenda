@@ -13,7 +13,7 @@
    nom : "Crud Data Plugin"
    nomClasse : "agenda.tiers.CrudDataEvenement"
    interface: "agenda.application.interfaces.CrudDataInterface"
-   autorun : false
+   autorun : true
    params : []
    requirements : []
    dependances : "Agenda"

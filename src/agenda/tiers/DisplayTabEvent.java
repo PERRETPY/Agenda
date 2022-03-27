@@ -47,6 +47,9 @@ public class DisplayTabEvent implements DisplayInterface{
 		title.setFont(new Font("Arial", Font.PLAIN, 30)); 
 		contentBox.add(title); 
 		
+		if (eventList == null) {
+			return contentBox;
+		}
 		Evenement [] rdvArray = new Evenement[eventList.size()];
 		for (int i = 0; i < eventList.size(); i++) 
 		 rdvArray[i] = eventList.get(i);

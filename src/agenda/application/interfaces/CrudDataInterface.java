@@ -4,7 +4,7 @@ import java.util.List;
 
 import agenda.models.Evenement;
 
-public interface CrudDataInterface {
+public interface CrudDataInterface extends Runnable{
 
 	 List<Evenement> getAllEventList();
 

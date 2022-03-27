@@ -41,6 +41,9 @@ public class DisplayListEvent implements DisplayInterface{
 		contentPanel.setLayout(new GridLayout(3, 3, 20, 25));
 		contentPanel.setBorder(new EmptyBorder(10,10,10,10));
         
+		if (eventList == null) {
+			return contentBox;
+		}
 		Evenement [] eventArray = new Evenement[eventList.size()];
 		for (int i = 0; i < eventList.size(); i++) {
 			eventArray[i] = eventList.get(i);

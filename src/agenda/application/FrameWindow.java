@@ -1,8 +1,6 @@
 package agenda.application;
 
-import agenda.application.interfaces.CreateInterface;
-import agenda.application.interfaces.CrudDataInterface;
-import agenda.application.interfaces.DisplayInterface;
+
 import agenda.application.interfaces.OnClickInterface;
 import agenda.models.Evenement;
 import agenda.plateforme.PluginLoader;
@@ -22,10 +20,7 @@ import java.util.List;
 public class FrameWindow implements  Runnable {
     private static JFrame mainFrame;
     private static JPanel mainPanel;
-    private Object displayInterface;
     private Object pluginActif;
-    private CrudDataInterface crudDataInterface;
-    private Object component;
     private static List<Evenement> allEventList;
     private static Box headerBox;
     private static Box topSeparatorBox;
@@ -33,20 +28,16 @@ public class FrameWindow implements  Runnable {
     private List<JButton> allPluginButton;
 
     public FrameWindow() {
-        this.displayInterface = (DisplayInterface) PluginLoader.getLoadPluginByInterface(DisplayInterface.class);
-        this.crudDataInterface = (CrudDataInterface) PluginLoader.getLoadPluginByInterface(CrudDataInterface.class);
-        FrameWindow.setAllEventList(this.crudDataInterface.getAllEventList());
-        
         this.initFrame();
     }
 
 
     private void initFrame() {
-        this.mainFrame = new JFrame("Agenda");
-        this.mainFrame.setSize(900,600);
+        FrameWindow.mainFrame = new JFrame("Agenda");
+        FrameWindow.mainFrame.setSize(900,600);
         
-        this.mainPanel =  new JPanel();
-        this.mainPanel.setLayout(new BoxLayout(this.mainPanel, BoxLayout.Y_AXIS));
+        FrameWindow.mainPanel =  new JPanel();
+        FrameWindow.mainPanel.setLayout(new BoxLayout(FrameWindow.mainPanel, BoxLayout.Y_AXIS));
         headerBox = new Box(BoxLayout.X_AXIS);
         topSeparatorBox = new Box(BoxLayout.X_AXIS);
         contentBox = new Box(BoxLayout.X_AXIS);
@@ -85,19 +76,19 @@ public class FrameWindow implements  Runnable {
         
         topSeparatorBox.add(new JSeparator());
         
-        this.mainPanel.add(headerBox);
-        this.mainPanel.add(topSeparatorBox);
-        this.mainPanel.add(contentBox);
+        FrameWindow.mainPanel.add(headerBox);
+        FrameWindow.mainPanel.add(topSeparatorBox);
+        FrameWindow.mainPanel.add(contentBox);
         
         
 
 
         
-        this.mainFrame.setContentPane(this.mainPanel);
+        FrameWindow.mainFrame.setContentPane(FrameWindow.mainPanel);
 
      
 
-        this.mainFrame.addWindowListener(new WindowAdapter() {
+        FrameWindow.mainFrame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent windowEvent){
             	System.out.println("Save data to csv");
                 System.exit(0);
@@ -105,7 +96,7 @@ public class FrameWindow implements  Runnable {
         });
         
 
-        this.mainFrame.setVisible(true);
+        FrameWindow.mainFrame.setVisible(true);
     }
 
     public static List<Evenement> getAllEventList () {

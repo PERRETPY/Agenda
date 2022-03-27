@@ -3,7 +3,7 @@ package agenda.models;
 import java.util.Date;
 import java.util.List;
 
-public class Evenement{
+public class Evenement implements ModelInterface {
     private String id;
     private String jour;
     private String heureDebut;
@@ -219,6 +219,7 @@ public class Evenement{
 	}
 
 
+	@Override
     public String toCSV() {
         return null;
     }

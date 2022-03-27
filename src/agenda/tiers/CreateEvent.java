@@ -26,6 +26,7 @@ import javax.swing.border.EmptyBorder;
 import agenda.application.FrameWindow;
 import agenda.application.interfaces.CreateInterface;
 import agenda.application.interfaces.OnClickInterface;
+import agenda.models.Event;
 import agenda.models.DefaultEnumeration;
 
 
