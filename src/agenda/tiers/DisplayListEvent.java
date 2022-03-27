@@ -7,7 +7,6 @@ import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -17,7 +16,6 @@ import javax.swing.border.EmptyBorder;
 
 import agenda.application.FrameWindow;
 import agenda.application.interfaces.DisplayInterface;
-import agenda.application.interfaces.OnClickInterface;
 import agenda.models.Evenement;
 
 

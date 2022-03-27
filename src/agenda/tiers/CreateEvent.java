@@ -8,8 +8,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -25,8 +23,6 @@ import javax.swing.border.EmptyBorder;
 
 import agenda.application.FrameWindow;
 import agenda.application.interfaces.CreateInterface;
-import agenda.application.interfaces.OnClickInterface;
-import agenda.models.Event;
 import agenda.models.DefaultEnumeration;
 
 

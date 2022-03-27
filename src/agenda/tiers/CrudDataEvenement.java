@@ -3,10 +3,6 @@ package agenda.tiers;
 import agenda.application.FrameWindow;
 import agenda.application.interfaces.CrudDataInterface;
 import agenda.models.Evenement;
-import agenda.models.Event;
-import agenda.models.ModelInterface;
-import agenda.models.Person;
-import agenda.models.TypeEvent;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
@@ -15,10 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class CrudDataEvenement implements CrudDataInterface {
 
@@ -98,7 +91,7 @@ public class CrudDataEvenement implements CrudDataInterface {
 
     }
     
-    private void addData(String filename, ModelInterface obj) {
+    private void addData(String filename, Evenement obj) {
         try {
             FileWriter bw1 = new FileWriter(filename, true);
             bw1.write("\n");
