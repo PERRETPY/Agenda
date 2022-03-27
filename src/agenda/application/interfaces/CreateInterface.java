@@ -4,9 +4,7 @@ import javax.swing.Box;
 
 import agenda.models.Event;
 
-public interface CreateInterface {
-	
-	public Event createNewEvent();
+public interface CreateInterface extends OnClickInterface{
 
 	public Box createForm();
 

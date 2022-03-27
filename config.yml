@@ -7,10 +7,11 @@
    requirements : ["Test Plugin"]
    defaultPlugin: false
    headerButton: false
-
-4 :
-   nom : "Load Data Plugin"
-   nomClasse : "agenda.tiers.LoadDataPlugin"
+   auteur : bab
+   version : 1.2
+3 :
+   nom : "Crud Data Plugin"
+   nomClasse : "agenda.tiers.CrudDataEvenement"
    interface: "agenda.application.interfaces.CrudDataInterface"
    autorun : false
    params : []
@@ -24,7 +25,7 @@
    interface: "agenda.application.interfaces.DisplayInterface"
    autorun : false
    params : []
-   requirements : []
+   requirements : ["Crud Data Plugin"]
    dependances : "Agenda"
    defaultPlugin: false
    headerButton: true

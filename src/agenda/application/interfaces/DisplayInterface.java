@@ -4,9 +4,8 @@ import java.util.List;
 
 import javax.swing.Box;
 
-import agenda.models.Event;
+import agenda.models.Evenement;
 
-public interface DisplayInterface {
-    String test();
-    public Box displayEventList(List<Event> eventList);
+public interface DisplayInterface extends OnClickInterface {
+    public Box displayEventList();
 }

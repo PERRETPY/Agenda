@@ -2,7 +2,7 @@ package agenda.application;
 
 import agenda.application.interfaces.CrudDataInterface;
 import agenda.application.interfaces.DisplayInterface;
-import agenda.models.Event;
+import agenda.models.Evenement;
 import agenda.models.Person;
 import agenda.plateforme.PluginLoader;
 import agenda.plateforme.models.Descripteur;
@@ -24,15 +24,14 @@ public class Agenda implements Runnable {
     private static final String APP_NAME = "RDV Smarts";
 
     private List<Person> personList;
-    private List<Event> eventList;
+    private List<Evenement> eventList;
 
     public Agenda() {
-        this.personList = new ArrayList<>();
-        this.eventList = new ArrayList<>();
+        //this.eventList = new ArrayList<>();
 
         descripteursPlugins = PluginLoader.getDescripteursFor(APP_NAME);
-        displayInterface = (DisplayInterface) PluginLoader.getLoadPluginByInterface(DisplayInterface.class);
-        crudDataInterface = (CrudDataInterface) PluginLoader.getLoadPluginByInterface(CrudDataInterface.class);
+        //displayInterface = (DisplayInterface) PluginLoader.getLoadPluginByInterface(DisplayInterface.class);
+        //crudDataInterface = (CrudDataInterface) PluginLoader.getLoadPluginByInterface(CrudDataInterface.class);
     }
 
     @Override
@@ -44,24 +43,19 @@ public class Agenda implements Runnable {
 
         System.out.println("Hello world!");
         //System.out.println("Plugin : " + displayInterface.test());
-
+        /*
         PluginLoader.loadPluginInList("Test Plugin 2");
         displayInterface = (DisplayInterface) PluginLoader.getLoadPluginByInterface(DisplayInterface.class);
         //System.out.println("Plugin : " + displayInterface.test());
 
-        this.personList = crudDataInterface.getAllPersonList();
 
         System.out.println(personList.toString());
 
         this.eventList = crudDataInterface.getAllEventList();
 
         System.out.println(eventList.toString());
-        Person person = new Person("Testfirstname", "Testlastname", "Testfirstname.Testlastname@yopmail.com");
-        crudDataInterface.addPerson(person);
+      */
 
-        this.personList = crudDataInterface.getAllPersonList();
-
-        System.out.println(personList.toString());
     }
 
 
