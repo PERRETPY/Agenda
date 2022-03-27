@@ -2,10 +2,6 @@ package agenda.tiers;
 
 import agenda.application.interfaces.CrudDataInterface;
 import agenda.models.Evenement;
-import agenda.models.Event;
-import agenda.models.ModelInterface;
-import agenda.models.Person;
-import agenda.models.TypeEvent;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
@@ -97,7 +93,7 @@ public class CrudDataEvenement implements CrudDataInterface {
 
     }
     
-    private void addData(String filename, ModelInterface obj) {
+    private void addData(String filename, Evenement obj) {
         try {
             FileWriter bw1 = new FileWriter(filename, true);
             bw1.write("\n");

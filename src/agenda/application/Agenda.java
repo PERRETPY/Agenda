@@ -3,7 +3,6 @@ package agenda.application;
 import agenda.application.interfaces.CrudDataInterface;
 import agenda.application.interfaces.DisplayInterface;
 import agenda.models.Evenement;
-import agenda.models.Person;
 import agenda.plateforme.PluginLoader;
 import agenda.plateforme.models.Descripteur;
 
@@ -23,7 +22,6 @@ public class Agenda implements Runnable {
 
     private static final String APP_NAME = "RDV Smarts";
 
-    private List<Person> personList;
     private List<Evenement> eventList;
 
     public Agenda() {
