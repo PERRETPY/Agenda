@@ -29,14 +29,22 @@ public class Descripteur {
 
     protected boolean defaultPlugin;
     
-    protected boolean headerButton;
+    protected String position;
+    
+    protected List<String> pluginIntegrable;
+    
+    protected String message ="";
+    
+    protected boolean error;
+    
+    protected boolean unique;
 
-    public boolean isHeaderButton() {
-        return headerButton;
+    public String getPosition() {
+        return position;
     }
 
-    public void setHeaderButton(boolean headerButton) {
-        this.headerButton = headerButton;
+    public void setPosition(String position) {
+        this.position = position;
     }
     
     public boolean isDefaultPlugin() {
@@ -45,6 +53,13 @@ public class Descripteur {
 
     public void setDefaultPlugin(boolean defaultPlugin) {
         this.defaultPlugin = defaultPlugin;
+    }
+    public boolean isUnique() {
+        return unique;
+    }
+
+    public void setUnique(boolean unique) {
+        this.unique = unique;
     }
 
 
@@ -104,7 +119,14 @@ public class Descripteur {
     public void setRequirements(List<String> requirements) {
         this.requirements = requirements;
     }
+    
+    public List<String> getPluginIntegrable() {
+        return pluginIntegrable;
+    }
 
+    public void setPluginIntegrable(List<String> pluginIntegrable) {
+        this.pluginIntegrable = pluginIntegrable;
+    }
     public String getDependency() {
         return dependency;
     }
@@ -128,4 +150,21 @@ public class Descripteur {
     public void setInterfaceImpl(String interfaceImpl) {
         this.interfaceImpl = interfaceImpl;
     }
+
+    public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public boolean isError() {
+		return error;
+	}
+
+	public void setError(boolean error) {
+		this.error = error;
+	}
+    
 }

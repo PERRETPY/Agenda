@@ -95,14 +95,20 @@ public class CrudDataEvenement implements CrudDataInterface {
         try {
             FileWriter bw1 = new FileWriter(filename, true);
             bw1.write("\n");
-            bw1.write(obj.toCSV());
+            bw1.write(this.toCSV(obj));
             bw1.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-
+	public String toCSV(Evenement event) {
+		// replace ; par , pour chaque attribut modifiable via un textField pour eviter que le csv plante
+    	if (event.getErrors().isEmpty()) {
+    		return "";
+    	}
+        return null;
+    }
 
 	@Override
 	public void run() {

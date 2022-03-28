@@ -8,6 +8,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -24,15 +27,23 @@ import javax.swing.border.EmptyBorder;
 import agenda.application.FrameWindow;
 import agenda.application.interfaces.CreateInterface;
 import agenda.models.DefaultEnumeration;
+import agenda.models.Evenement;
 
 
 public class CreateEvent implements CreateInterface{
 
     private String strPathToDataEvent = "inputData/Evenement.csv";
-    
+    private List<Evenement> eventList;
+    Box contentBox;
+    JTextField jourTextField,heureDebutTextField,heureFinTextField,titreTextField,descriptionTextField,
+    organisateurTextField,participantTextField,lieuTextField,commentaireTextField;
+    JComboBox typeComboBox,statutComboBox,prioriteComboBox;
+    String jourInput,heureDebutInput,heureFinInput,titreInput,typeInput,descriptionInput,organisateurInput,participantInput,
+    lieuInput,statutInput,prioriteInput,commentaireInput,date_creation;
 
 	public Box createForm() {
-		Box contentBox = new Box(BoxLayout.Y_AXIS);
+		this.eventList = FrameWindow.getAllEventList();
+		this.contentBox = new Box(BoxLayout.Y_AXIS);
 		JPanel contentPanel = new JPanel();
 		contentPanel.setLayout(new GridLayout(13, 2));
 		contentPanel.setBorder(new EmptyBorder(0,10,10,10));
@@ -40,31 +51,28 @@ public class CreateEvent implements CreateInterface{
 		JLabel title = new JLabel("Ajout d'un nouveau evenement", SwingConstants.CENTER); 
 		title.setBorder(new EmptyBorder(0, 250, 10, 10));
 		title.setFont(new Font("Arial", Font.PLAIN, 30)); 
-		contentBox.add(title); 
+		this.contentBox.add(title); 
 		
 		JLabel jour = new JLabel("Jour *"); 
 		jour.setFont(new Font("Arial", Font.PLAIN, 20)); 
 		contentPanel.add(jour); 
 		
-		JTextField jourTextField = new JTextField(); 
-		jourTextField.setFont(new Font("Arial", Font.PLAIN, 15)); 
-		contentPanel.add(jourTextField); 
+		this.jourTextField = new JTextField(); 
+		contentPanel.add(this.jourTextField); 
 		
 		JLabel heureDebut = new JLabel("Heure debut *"); 
 		heureDebut.setFont(new Font("Arial", Font.PLAIN, 20)); 
 		contentPanel.add(heureDebut); 
 		
-		JTextField heureDebutTextField = new JTextField(); 
-		heureDebutTextField.setFont(new Font("Arial", Font.PLAIN, 15)); 
-		contentPanel.add(heureDebutTextField); 
+		this.heureDebutTextField = new JTextField();  
+		contentPanel.add(this.heureDebutTextField); 
 		
 		JLabel heureFin = new JLabel("Heure fin *"); 
 		heureFin.setFont(new Font("Arial", Font.PLAIN, 20)); 
 		contentPanel.add(heureFin); 
 		
-		JTextField heureFinTextField = new JTextField(); 
-		heureFinTextField.setFont(new Font("Arial", Font.PLAIN, 15)); 
-		contentPanel.add(heureFinTextField); 
+		this.heureFinTextField = new JTextField(); 
+		contentPanel.add(this.heureFinTextField); 
 		
 		
 		JLabel titre = new JLabel("Titre *"); 
@@ -72,74 +80,66 @@ public class CreateEvent implements CreateInterface{
 		//titre.setBorder(new EmptyBorder(10, 10, 10, 10));
 		contentPanel.add(titre); 
 
-		JTextField titreTextField = new JTextField(); 
-		contentPanel.add(titreTextField); 
+		this.titreTextField = new JTextField(); 
+		contentPanel.add(this.titreTextField); 
 		
 		JLabel type = new JLabel("Type"); 
 		type.setFont(new Font("Arial", Font.PLAIN, 20)); 
 		contentPanel.add(type); 
 
-		JComboBox typeComboBox = new JComboBox(DefaultEnumeration.getType()); 
-		typeComboBox.setFont(new Font("Arial", Font.PLAIN, 15)); 
-		contentPanel.add(typeComboBox); 
+		this.typeComboBox = new JComboBox(DefaultEnumeration.getType());
+		contentPanel.add(this.typeComboBox); 
 		
 		JLabel description = new JLabel("Description"); 
 		description.setFont(new Font("Arial", Font.PLAIN, 20)); 
 		contentPanel.add(description); 
 
-		JTextField descriptionTextField = new JTextField(); 
-		descriptionTextField.setFont(new Font("Arial", Font.PLAIN, 15)); 
-		contentPanel.add(descriptionTextField); 
+		this.descriptionTextField = new JTextField(); 
+		contentPanel.add(this.descriptionTextField); 
 		
 		
 		JLabel organisateur = new JLabel("Organisateur(s)"); 
 		organisateur.setFont(new Font("Arial", Font.PLAIN, 20)); 
 		contentPanel.add(organisateur); 
 
-		JTextField organisateurTextField = new JTextField(); 
-		organisateurTextField.setFont(new Font("Arial", Font.PLAIN, 15)); 
-		contentPanel.add(organisateurTextField); 
+		this.organisateurTextField = new JTextField(); 
+		contentPanel.add(this.organisateurTextField); 
 		
 		JLabel participant = new JLabel("Participant(s)"); 
 		participant.setFont(new Font("Arial", Font.PLAIN, 20)); 
 		contentPanel.add(participant); 
 
-		JTextField participantTextField = new JTextField(); 
-		participantTextField.setFont(new Font("Arial", Font.PLAIN, 15)); 
-		contentPanel.add(participantTextField); 
+		this.participantTextField = new JTextField(); 
+		contentPanel.add(this.participantTextField); 
 		
 		JLabel lieu = new JLabel("Lieu"); 
 		lieu.setFont(new Font("Arial", Font.PLAIN, 20)); 
 		contentPanel.add(lieu); 
 
-		JTextField lieuTextField = new JTextField(); 
-		lieuTextField.setFont(new Font("Arial", Font.PLAIN, 15)); 
-		contentPanel.add(lieuTextField); 
+		this.lieuTextField = new JTextField(); 
+		contentPanel.add(this.lieuTextField); 
 		
 		JLabel statut = new JLabel("Statut"); 
 		statut.setFont(new Font("Arial", Font.PLAIN, 20)); 
 		contentPanel.add(statut); 
 
-		JComboBox statutComboBox = new JComboBox(DefaultEnumeration.getStatut()); 
-		statutComboBox.setFont(new Font("Arial", Font.PLAIN, 15)); 
-		contentPanel.add(statutComboBox); 
+		this.statutComboBox = new JComboBox(DefaultEnumeration.getStatut()); 
+		contentPanel.add(this.statutComboBox); 
 		
 		JLabel priorite = new JLabel("Priorité"); 
 		priorite.setFont(new Font("Arial", Font.PLAIN, 20)); 
 		contentPanel.add(priorite); 
 
-		JComboBox prioriteComboBox = new JComboBox(DefaultEnumeration.getPriorite()); 
-		prioriteComboBox.setFont(new Font("Arial", Font.PLAIN, 15)); 
-		contentPanel.add(prioriteComboBox); 
+		this.prioriteComboBox = new JComboBox(DefaultEnumeration.getPriorite()); 
+		contentPanel.add(this.prioriteComboBox); 
 		
 		
 		JLabel commentaire = new JLabel("Commentaire"); 
 		commentaire.setFont(new Font("Arial", Font.PLAIN, 20)); 
 		contentPanel.add(commentaire); 
 
-		JTextField commentaireTextField = new JTextField(); 
-		commentaireTextField.setFont(new Font("Arial", Font.PLAIN, 15)); 
-		contentPanel.add(commentaireTextField); 
+		this.commentaireTextField = new JTextField(); 
+		contentPanel.add(this.commentaireTextField); 
 		
 		
 		JButton Enregistrer = new JButton("Enregistrer"); 
@@ -148,76 +148,10 @@ public class CreateEvent implements CreateInterface{
 		
 		Enregistrer.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-            		String Errors = "";
-            		String jourInput = jourTextField.getText();
-            		if (!isValidDate(jourInput)) {
-            			Errors +="Le jour doit être formaté selon le modèle suivant : dd/MM/yyyy \n";
-            		}
             		
-            		String heureDebutInput = heureDebutTextField.getText();
-            		if(!isValidHeure(heureDebutInput)) {
-            			Errors +="L'heure de debut doit être formaté selon le modèle suivant : HH:mm \n";
-            		}
-            		String heureFinInput = heureFinTextField.getText();
-            		if(!isValidHeure(heureFinInput)) {
-            			Errors +="L'heure de fin doit être formaté selon le modèle suivant : HH:mm \n";
-            		}
+            	getValueInput();
+            	saveValueInput();	
             		
-            		String titreInput = titreTextField.getText();
-            		if(titreInput.isEmpty()) {
-            			Errors += "Le titre est obligatoire";
-            		}
-            		String typeInput = (String) typeComboBox.getSelectedItem();
-            		
-            		String descriptionInput = descriptionTextField.getText();
-            		
-            		String organisateurInput = organisateurTextField.getText();
-            		
-            		String participantInput = participantTextField.getText();
-            		String lieuInput = lieuTextField.getText();
-            		String statutInput = (String) statutComboBox.getSelectedItem();
-            		String prioriteInput = (String) prioriteComboBox.getSelectedItem();
-            		String commentaireInput = commentaireTextField.getText();
-            		
-            		if(!Errors.isEmpty()) {
-            			JOptionPane.showMessageDialog(contentBox,
-            					Errors.toString(),
-            				    "Données incorrects",
-            				    JOptionPane.WARNING_MESSAGE);
-            		} else {
-            			SimpleDateFormat date_creation = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-            			// date_update = new Date() 
-            			try {
-                    		String csvEvent ="1;"+jourInput+";"+heureDebutInput+";"+heureFinInput+";"
-                    				+titreInput+";"+typeInput+";"+descriptionInput+";"+organisateurInput+";"
-                            		+participantInput+";"+lieuInput+";"+statutInput+";"+prioriteInput+";"
-                                    +commentaireInput+";"+date_creation+";"+date_creation+";endRow";
-                            FileWriter fileEvent = new FileWriter(strPathToDataEvent, true);
-                            fileEvent.write("\n");
-                            fileEvent.write(csvEvent);
-                            fileEvent.flush();
-                            
-                            
-                            jourTextField.setText("");
-                            heureDebutTextField.setText("");
-                            heureFinTextField.setText("");
-                            titreTextField.setText("");
-                          //typeComboBox.setText("");
-                            descriptionTextField.setText("");
-                            organisateurTextField.setText("");
-                            participantTextField.setText("");
-                            lieuTextField.setText("");
-                            //statutComboBox
-                            //prioriteComboBox
-                            commentaireTextField.setText("");
-                            
-                            JOptionPane.showMessageDialog(contentBox,
-                            	    "Votre événement a été crée avec succès !");
-                            
-                        } catch (IOException err) {
-                            err.printStackTrace();
-                        }
-            		}
             	
             }
 		});
@@ -225,48 +159,68 @@ public class CreateEvent implements CreateInterface{
 		
 		JScrollPane scrollPane = new  JScrollPane(contentPanel);
  		scrollPane.setBounds(20, 150, 600, 400);
- 		contentBox.add(scrollPane);
- 		contentBox.add(Enregistrer); 
+ 		this.contentBox.add(scrollPane);
+ 		this.contentBox.add(Enregistrer); 
 		
 		
 		
-		return contentBox;
+		return this.contentBox;
 		
 	}
 	
-	public static boolean isValidDate(String inDate) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        dateFormat.setLenient(false);
-        try {
-            dateFormat.parse(inDate.trim());
-        } catch (ParseException pe) {
-            return false;
-        }
-        return true;
-    }
-	public static boolean isValidHeure(String inDate) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
-        dateFormat.setLenient(false);
-        try {
-            dateFormat.parse(inDate.trim());
-        } catch (ParseException pe) {
-            return false;
-        }
-        return true;
-    }
-	public static boolean isNumeric(String strNum) {
-	    if (strNum == null) {
-	        return false;
-	    }
-	    try {
-	        double d = Integer.parseInt(strNum);
-	    } catch (NumberFormatException nfe) {
-	        return false;
-	    }
-	    return true;
+	private void getValueInput() {
+		this.jourInput = jourTextField.getText();
+		this.heureDebutInput = heureDebutTextField.getText();
+		this.heureFinInput = heureFinTextField.getText();
+		this.titreInput = titreTextField.getText();
+		this.typeInput = (String) typeComboBox.getSelectedItem();
+		this.descriptionInput = descriptionTextField.getText();
+		this.organisateurInput = organisateurTextField.getText();
+		this.participantInput = participantTextField.getText();
+		this.lieuInput = lieuTextField.getText();
+		this.statutInput = (String) statutComboBox.getSelectedItem();
+		this.prioriteInput = (String) prioriteComboBox.getSelectedItem();
+		this.commentaireInput = commentaireTextField.getText();
+		
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+		LocalDateTime now = LocalDateTime.now();
+		String date_creation = dtf.format(now);
+	}
+	private void saveValueInput() {
+		Evenement new_event = new Evenement(jourInput,heureDebutInput,heureFinInput,titreInput,typeInput,descriptionInput,organisateurInput,
+				participantInput,lieuInput,statutInput,prioriteInput,commentaireInput,date_creation,date_creation); 
+		
+		
+		
+		String Errors = new_event.getErrors();
+		if(!Errors.isEmpty()) {
+			JOptionPane.showMessageDialog(this.contentBox,
+					Errors.toString(),
+				    "Données incorrects",
+				    JOptionPane.WARNING_MESSAGE);
+		} else {
+			this.eventList.add(new_event);
+            reinitialiseInput();
+            JOptionPane.showMessageDialog(this.contentBox,
+                	    "Votre événement a été crée avec succès !");
+          
+		}
+	}
+	private void reinitialiseInput() {
+		this.jourTextField.setText("");
+		this.heureDebutTextField.setText("");
+		this.heureFinTextField.setText("");
+		this.titreTextField.setText("");
+		this.typeComboBox.setSelectedIndex(0);
+		this.descriptionTextField.setText("");
+		this.organisateurTextField.setText("");
+		this.participantTextField.setText("");
+		this.lieuTextField.setText("");
+		this.statutComboBox.setSelectedIndex(0);
+		this.prioriteComboBox.setSelectedIndex(0);
+		this.commentaireTextField.setText("");
 	}
 	
-
 	@Override
 	public void execute() {
 		// TODO Auto-generated method stub

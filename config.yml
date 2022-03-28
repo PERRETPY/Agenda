@@ -1,51 +1,66 @@
 1 :
    nom : "Agenda"
    nomClasse : "agenda.application.Agenda"
-   interface: ""
    autorun : true
-   params : []
-   requirements : ["Test Plugin"]
-   defaultPlugin: false
-   headerButton: false
-   auteur : bab
-   version : 1.2
-3 :
+   defaultPlugin: true
+   unique : false
+2 :
    nom : "Crud Data Plugin"
    nomClasse : "agenda.tiers.CrudDataEvenement"
    interface: "agenda.application.interfaces.CrudDataInterface"
    autorun : true
-   params : []
-   requirements : []
-   dependances : "Agenda"
+   requirements : ["Agenda"]
    defaultPlugin: true
-   headerButton: false
-5 :
+   unique : true
+3 :
    nom : "Liste des events"
-   nomClasse : "agenda.tiers.DisplayListEvent"
+   nomClasse : "agenda.tiers.DisplayCardEvent"
    interface: "agenda.application.interfaces.DisplayInterface"
    autorun : false
-   params : []
-   requirements : ["Crud Data Plugin"]
-   dependances : "Agenda"
+   requirements : ["Agenda"]
    defaultPlugin: false
-   headerButton: true
-6 :
+   position: "header"
+   unique : false
+
+4 :
    nom : "Tableau des events"
    nomClasse : "agenda.tiers.DisplayTabEvent"
    interface: "agenda.application.interfaces.DisplayInterface"
    autorun : false
-   params : []
-   requirements : []
-   dependances : "Agenda"
-   defaultPlugin: false
-   headerButton: true
-7 :
+   requirements : ["Agenda"]
+   defaultPlugin: true
+   position: "header"
+   unique : false
+5 :
    nom : "Nouveau evenement"
    nomClasse : "agenda.tiers.CreateEvent"
    interface: "agenda.application.interfaces.CreateInterface"
    autorun : false
-   params : []
-   requirements : []
-   dependances : "Agenda"
+   requirements : ["Agenda"]
    defaultPlugin: false
-   headerButton: true
+   position: "header"
+   unique : false
+   
+6 :
+   nom : "Enregistrer modification"
+   nomClasse : "agenda.tiers.SaveUpdateDispalyCard"
+   interface: "agenda.application.interfaces.IntegrableInterface"
+   autorun : false
+   requirements : ["Agenda"]
+   defaultPlugin: true
+   pluginIntegrable : ["Tableau des events"]
+   position: "footer"
+   unique : false
+   
+7 :
+   nom : "Supprimer item"
+   nomClasse : "agenda.tiers.DeleteItemDisplayCard"
+   interface: "agenda.application.interfaces.IntegrableInterface"
+   autorun : false
+   requirements : ["Agenda","Tableau des events"]
+   defaultPlugin: true
+   pluginIntegrable : ["Tableau des events"]
+   position: "footer"
+   unique : false
+   
+ 

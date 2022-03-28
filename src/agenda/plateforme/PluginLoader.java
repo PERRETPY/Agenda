@@ -78,9 +78,10 @@ public class PluginLoader {
         loader.chargerDescripteurs();
 
         setDefaultPluginLoaded();
-
+        loader.checkRequirement();
         // Lancement des plugins autorun
         loader.loadAutoRun();
+        
         // loader.notifyInit();
 
     }
@@ -90,24 +91,72 @@ public class PluginLoader {
      * des threads.
      */
     private void loadAutoRun() {
-        // Parcours des descripteurs chargÃ©s
-        for (Descripteur d : descripteurs.values()) {
+       //on crée un tableau pour stocker les descripteurs des plugins en autorun
+    	List <Descripteur> DescripteurAutoRunList = new ArrayList <Descripteur>();
+    	 
+     // Parcours la liste des descripteurs chargés
+        for (Descripteur descripteurLoaded : getLoadedPlugin().values()) {
             // On regarde les plugins flaggÃ©s autorun
-            if (d.isAutoRun()) {
-                /*if (d.getRequirements() != null) {
-                    for (Descripteur descripteurRequire : getRequirementDescripteur(d).values()) {
-                        loadPlugin(descripteurRequire);
-                    }
-
-                }*/
-                loadPlugin(d);
+        	
+            if (descripteurLoaded.isAutoRun()) {
+            	
+                // on recupere l'instance d'un plugin dans un thread separé
+            	loadPlugin(descripteurLoaded);
             }
+        }
+
+    }
+    
+    private void checkRequirement() {
+    	Collection <Descripteur> DescripteurLoadedList = getLoadedPlugin().values();
+    	
+    	int nbError = 0;
+        //on parcour la liste des plugin chargés
+        for (Descripteur descripteurLoaded : DescripteurLoadedList) {
+        	
+        	if (descripteurLoaded.getRequirements() != null) {
+        		
+        		// on recupère la liste de descripteurs des plugins requis
+        		Collection <Descripteur> DescripteurRequisList = getDescripteursPluginRequis(descripteurLoaded).values();
+        		//on parcoure la liste
+                for (Descripteur descripteurRequis : DescripteurRequisList) {
+                	System.out.println(descripteurLoaded.getName());
+                	System.out.println(descripteurLoaded.isLoaded());
+                	boolean found =false;
+                	for (Descripteur d :DescripteurLoadedList) {
+                		if (d.getClassName().equals(descripteurRequis.getClassName())) {
+                			found = true;
+                		}
+                	}
+                	
+                	if (!found) {
+                		// si des plugins requis n'est pas dans la liste des plugins chargés, on enregistre une erreur et on annule le chargement du plugin qui en depend
+                		descripteurLoaded.setLoaded(false);
+                		descripteurLoaded.setError(true);
+                		descripteurLoaded.setMessage(descripteurLoaded.getMessage() + "Echec du chargement ! Le plugin "+descripteurRequis.getName()+" est requis \n");
+                	}
+                }
+             // s"il y a un erreur on incremente le compteur des erreurs
+                if (descripteurLoaded.isError()) {
+                	nbError++;
+                	System.out.println("error");
+                	System.out.println(descripteurLoaded.getMessage());
+                	INSTANCE.descripteurs.put(descripteurLoaded.getName(), descripteurLoaded);
+                } 
+        	}
+        }
+        
+        // certains plugins sont actuellement ok, peuvent dependre de plugin en erreur, 
+        // du coups on relance la verification jusqu'à ce qu'il n'y est plus de nouvelles erreurs
+        if(nbError>0) {
+        	checkRequirement();
         }
     }
 
-    private void loadPlugin(Descripteur descripteur) {
+    // recupere l'instance d'un plugin dans un thread separé
+    public void loadPlugin(Descripteur descripteur) {
         try {
-            Thread t = new Thread((Runnable) this.recupererPlugin(descripteur, null));
+            Thread t = new Thread((Runnable) this.recupererIntancePlugin(descripteur));
             t.start();
         } catch (SecurityException | IllegalArgumentException e) {
             // TODO Auto-generated catch block
@@ -116,7 +165,7 @@ public class PluginLoader {
     }
 
     /**
-     * MÃ©thode de chargement des descripteurs.
+     * Récupère le descripteur de tous les plugins se situant dans le fichier de conf
      *
      */
     public void chargerDescripteurs() {
@@ -142,18 +191,17 @@ public class PluginLoader {
                 descripteur.setName((String) pluginMap.get("nom"));
                 descripteur.setClassName((String) pluginMap.get("nomClasse"));
                 descripteur.setInterfaceImpl((String) pluginMap.get("interface"));
-                descripteur.setAutoRun((Boolean) pluginMap.get("autorun"));
-                descripteur.setDefaultPlugin((Boolean) pluginMap.get("defaultPlugin"));
-                descripteur.setHeaderButton((Boolean) pluginMap.get("headerButton"));
+                descripteur.setAutoRun(pluginMap.get("autorun") != null? (Boolean) pluginMap.get("autorun"): false);
+                descripteur.setDefaultPlugin(pluginMap.get("defaultPlugin") != null? (Boolean) pluginMap.get("defaultPlugin"): false);
+                descripteur.setUnique(pluginMap.get("unique") != null? (Boolean) pluginMap.get("unique"): false);
+                System.out.println(descripteur.isUnique());
+                descripteur.setPosition((String) pluginMap.get("position"));
+                descripteur.setPluginIntegrable((List<String>) pluginMap.get("pluginIntegrable"));
                 List<String> reqs = (List<String>) pluginMap.get("requirements");
                 if (reqs == null || !reqs.isEmpty()) {
                     descripteur.setRequirements(reqs);
                 }
-                // Gestion arguments constructeur par dÃ©faut
-                List<String> args = (List<String>) pluginMap.get("params");
-                if (args == null || !args.isEmpty()) {
-                    descripteur.addArgs(args);
-                }
+               
                 // Gestion des dÃ©pendences : valorisation du parent
                 if (configMap.get("dependances") != null || pluginMap.get("dependances") != "") {
                     descripteur.setDependency((String) pluginMap.get("dependances"));
@@ -169,37 +217,62 @@ public class PluginLoader {
     }
 
     /**
-     * RÃ©cupÃ©ration des plugins enfant du plugin entrÃ© en paramÃ¨tre
+     * Récupèration des plugins integrables au plugin passée en paramètre
      *
-     * @param dependency the dependency
+     * @param pluginName the dependency
      * @return the descripteurs for
      */
-    public static HashMap<String, Descripteur> getDescripteursFor(String dependency) {
+    public static HashMap<String, Descripteur> getDescripteursPluginIntegrable(String pluginName, boolean isLoaded) {
+    	// initialise le tableau à retourner
         HashMap<String, Descripteur> descripteurs = new HashMap<String, Descripteur>();
-        for (Descripteur d : INSTANCE.getDescripteurs().values()) {
-            // On rÃ©cupÃ¨re tous les plugins enfant du plugin entrÃ© en paramÃ¨tre
-            if (d.getDependency() != null && d.getDependency().equals(dependency)) {
-                descripteurs.put(d.getName(), d);
+        Collection <Descripteur> descripteursList = new ArrayList<Descripteur>();
+        if (isLoaded) {
+        	descripteursList = INSTANCE.getLoadedPlugin().values();
+        } else {
+        	descripteursList = INSTANCE.getDescripteurs().values();
+        }
+        
+        // parcours la liste des descripteurs
+        for (Descripteur d : descripteursList) {
+        	
+            // On recupère tous les plugins integrables au plugin entrée en paramètre
+        	boolean found = false;
+            if (d.getPluginIntegrable() != null ) { //&& Arrays.asList(d.getPluginIntegrable()).contains(pluginName)
+            	System.out.println(d.getName());
+            	for (String name : d.getPluginIntegrable()) {
+            		System.out.println(name);
+            		System.out.println(pluginName);
+            		if (name.equals(pluginName)) {
+            			found =true;
+            			break;
+            		}
+            	}
+                
+            }
+            if (found) {
+            	descripteurs.put(d.getName(), d);
             }
         }
         return descripteurs;
     }
 
-    public HashMap<String, Descripteur> getRequirementDescripteur(Descripteur plugin) {
+    // Recupere la liste des plugins qui sont requis par le plugin passé en paramètre
+    public HashMap<String, Descripteur> getDescripteursPluginRequis(Descripteur plugin) {
+    	// recuperes le nom des plugins requis
         List<String> requirementList = plugin.getRequirements();
+        // initialise le tableau à retourner
         HashMap<String, Descripteur> requirements = new HashMap<String, Descripteur>();
+        // recupère la liste des descriptions
         HashMap<String, Descripteur> descripteurList = INSTANCE.getDescripteurs();
 
-        boolean found = false;
         int i=0;
-
-
-
+        // parcours la liste des noms de plugins requis
         while(i<requirementList.size()) {
-
+        	// recupère la description du plugin par son nom
             Descripteur descripteur = descripteurList.get(requirementList.get(i));
 
             try {
+            	//ajoute la description du plugin dans le tableau 
                 requirements.put(descripteur.getName(), descripteur);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -207,40 +280,37 @@ public class PluginLoader {
 
             i++;
         }
+        // retourne le tableau
         return requirements;
     }
 
     /**
-     * MÃ©thode de rÃ©cupÃ©ration d'instance du plugin passÃ© en paramÃ¨tre
+     * Méthode de récupération d'instance du plugin passé en paramètre
      *
      * @param descripteur the descripteur du plugin
-     * @param args        the args
      * @return the object
      */
-    public static Object recupererPlugin(Descripteur descripteur, Object[] args) {
-        PluginLoader instance = PluginLoader.getInstance();
-        Class classe;
-        Constructor constructor;
-        Object plugin = null;
+    public static Object recupererIntancePlugin(Descripteur descripteur) {
+    	
         try {
             // Instanciation de la classe avec le contructeur, avec ou sans paramÃ¨tres
-            classe = Class.forName(descripteur.getClassName());
-            if (descripteur.getArgs() != null) {
-                constructor = classe.getConstructor(descripteur.getArgs());
-            } else {
-                constructor = classe.getConstructor(null);
-            }
-            plugin = constructor.newInstance(args);
+        	Class classe = Class.forName(descripteur.getClassName());
+            Constructor constructor = classe.getConstructor();
+            return constructor.newInstance();
 
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException
                 | SecurityException | IllegalArgumentException | InvocationTargetException e) {
             e.printStackTrace();
         }
-        return plugin;
+        return null;
     }
 
+    // recupère les plugins chargés en fonction de l'interface passé en paramètre
+    
     public static Object getLoadPluginByInterface(Class<?> interfaceSearch) {
+    	//recupération de la liste des plugin charger
         HashMap<String, Descripteur> pluginLoad = INSTANCE.getLoadedPlugin();
+        //recupération de la description des plugins appartenants à cette interface
         HashMap<String, Descripteur> descripteursByInterface = getDescripteurListByInterface(interfaceSearch);
         Descripteur loadPluginDescriptor = null;
 
@@ -276,70 +346,80 @@ public class PluginLoader {
         }
     }
     
-	public static Object loadPluginsFor(Descripteur descripteurPlugin , Object [] args) {
-		Class c;
-		Constructor constructor;
-		Object plugin= null;
-		try {
-			c = Class.forName(descripteurPlugin.getClassName());
-			if(descripteurPlugin.getArgs()!=null) {
-				constructor = c.getConstructor(descripteurPlugin.getArgs());
-			}else {
-				constructor = c.getConstructor(null);
-			}
-			plugin = constructor.newInstance(args);
-			
-		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException | SecurityException | IllegalArgumentException | InvocationTargetException e) {
-			e.printStackTrace();
-		}		
-		return plugin;
-	}
 
     public static void loadPluginInList(String pluginName) {
-        Descripteur pluginNeedToBeLoad = INSTANCE.descripteurs.get(pluginName);
+    	// recupère le plugin dans la liste des descripteurs
+    	Descripteur pluginNeedToBeLoad = INSTANCE.descripteurs.get(pluginName);
+        
         if (pluginNeedToBeLoad != null) {
+        	// recupère le nom de l'interface
             String interfaceName = pluginNeedToBeLoad.getInterfaceImpl();
-
-            unloadPluginByInterface(interfaceName);
+            System.out.println(interfaceName);
+            // on desactive les plugins dejà chargé appartenant à cette interface si celui-ci doit etre unique
+            System.out.println("isUnique");
+            System.out.println(pluginNeedToBeLoad.isUnique());
+            if (pluginNeedToBeLoad.isUnique()) {
+            	unloadPluginByInterface(interfaceName);
+            }
+           
+            // on charge le plugin passé en parametre
             pluginNeedToBeLoad.setLoaded(true);
+            //on met à jour la liste de nos descripteurs
             INSTANCE.descripteurs.put(pluginName, pluginNeedToBeLoad);
         }
+        
     }
 
+ // on desactive les plugins dejà chargé appartenant à l'interface passée en paramètre
     public static void unloadPluginByInterface(String interfaceName) {
+    	// recupère la liste des descripteurs
         HashMap<String, Descripteur> descripteurList = INSTANCE.getDescripteurs();
+        // parcours la liste
         for (Map.Entry<String, Descripteur> stringDescripteurEntry : descripteurList.entrySet()) {
-            if (stringDescripteurEntry.getValue().getInterfaceImpl().equals(interfaceName)
+        	
+            if (stringDescripteurEntry.getValue().getInterfaceImpl()!= null && stringDescripteurEntry.getValue().getInterfaceImpl().equals(interfaceName)
                 && stringDescripteurEntry.getValue().isLoaded()) {
+            	// on desactive les plugins dejà chargé appartenant à l'interface passé en parametre
                 Descripteur dsc = stringDescripteurEntry.getValue();
                 dsc.setLoaded(false);
+                // on met à jour la liste de nos descripteurs
                 descripteurList.put(dsc.getName(), dsc);
             }
         }
     }
 
     public static void setDefaultPluginLoaded() {
+    	//recupération de la description de tous les plugins
         HashMap<String, Descripteur> descripteurList = INSTANCE.getDescripteurs();
         if(descripteurList != null) {
+        	 //parcours la liste des descripteurs
             for (Map.Entry<String, Descripteur> stringDescripteurEntry : descripteurList.entrySet()) {
                 if (stringDescripteurEntry.getValue().isDefaultPlugin()) {
+                	// on charge le plugin en desactivant ceux provenant de la même interface dans le cas ou le plugin est unique
+                	
                     loadPluginInList(stringDescripteurEntry.getKey());
-                } else {
                 }
             }
+           
         }
 
     }
 
+  //recupération de la description des plugins appartenants à l'interface passé en paramètre
     public static HashMap<String, Descripteur> getDescripteurListByInterface(Class<?> interfaceSearch) {
+    	//recupération de la description de tous les plugins
         HashMap<String, Descripteur> descripteurList = INSTANCE.getDescripteurs();
+        //initialisation du tableau à retourner
         HashMap<String, Descripteur> descripteurListByInterface = new HashMap<String, Descripteur>();
 
+        //recuperation du nom de l'interface
         String interfaceName = interfaceSearch.getName();
-
+        
+        //parcours la liste des descripteurs
         for (Map.Entry<String, Descripteur> stringDescripteurEntry : descripteurList.entrySet()) {
             Descripteur descripteur = stringDescripteurEntry.getValue();
             if (descripteur.getInterfaceImpl() != null && descripteur.getInterfaceImpl().equals(interfaceName)) {
+            	// ajoute la description du plugin lorsque celui(ci implemente l'interface rechergché
                 descripteurListByInterface.put(descripteur.getName(), descripteur);
             }
         }

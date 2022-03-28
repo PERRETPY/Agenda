@@ -18,7 +18,7 @@ public class Agenda implements Runnable {
 
     public Agenda() {
 
-        descripteursPlugins = PluginLoader.getDescripteursFor(APP_NAME);
+        //descripteursPlugins = PluginLoader.getDescripteursFor(APP_NAME);
     }
 
     @Override

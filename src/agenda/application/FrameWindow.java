@@ -21,6 +21,7 @@ public class FrameWindow implements  Runnable {
     private static JFrame mainFrame;
     private static JPanel mainPanel;
     private Object pluginActif;
+    private static JButton headerButtonActif;
     private static List<Evenement> allEventList;
     private static Box headerBox;
     private static Box topSeparatorBox;
@@ -50,7 +51,7 @@ public class FrameWindow implements  Runnable {
         while (it.hasNext()) {
             HashMap.Entry<String, Descripteur> entry = (HashMap.Entry)it.next();
             Descripteur descripteur = entry.getValue();
-            if (descripteur.isHeaderButton()) {
+            if (descripteur.getPosition()!= null && descripteur.getPosition().equals("header")) {
                 JButton btn = new JButton(descripteur.getName());
                 btn.setForeground(Color.WHITE);
                 btn.setBackground(new Color(70, 137, 112));
@@ -59,10 +60,10 @@ public class FrameWindow implements  Runnable {
                 btn.setFont(new Font("Arial", Font.PLAIN, 15)); 
                 btn.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
-                    	pluginActif = PluginLoader.loadPluginsFor(descripteur,null);
+                    	pluginActif = PluginLoader.recupererIntancePlugin(descripteur);
                         
                         ((OnClickInterface) pluginActif).execute();
-                        
+                        headerButtonActif = btn;
                         
                         
                     }
@@ -113,7 +114,11 @@ public class FrameWindow implements  Runnable {
             mainFrame.repaint();
         }
     }
-
+    
+    public static void refreshPage () {
+    	headerButtonActif.doClick();
+    }
+    
     @Override
     public void run() {
     	if(allPluginButton.size()>0) {

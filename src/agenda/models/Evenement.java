@@ -1,7 +1,12 @@
 package agenda.models;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
 
-public class Evenement {
+import agenda.application.interfaces.ValidateurInterface;
+
+public class Evenement implements ValidateurInterface, Cloneable {
     private String id;
     private String jour;
     private String heureDebut;
@@ -216,7 +221,44 @@ public class Evenement {
 		this.dateUpdate = dateUpdate;
 	}
 
-    public String toCSV() {
-        return null;
+  
+    @Override
+    public String getErrors() {
+    	String Errors = "";
+    	if (!ValidateurInterface.isValidDate(this.jour)) {
+			Errors +="Le jour doit être formaté selon le modèle suivant : dd/MM/yyyy \n";
+		}
+    	if(!ValidateurInterface.isValidHeure(this.heureDebut)) {
+			Errors +="L'heure de debut doit être formaté selon le modèle suivant : HH:mm \n";
+		}
+    	if(!ValidateurInterface.isValidHeure(this.heureFin)) {
+			Errors +="L'heure de fin doit être formaté selon le modèle suivant : HH:mm \n";
+		}
+    	if(this.titre.isEmpty()) {
+			Errors += "Le titre est obligatoire \n";
+		}
+    	
+    	String [] autorisedType = DefaultEnumeration.getType();
+    	if(!Arrays.asList(autorisedType).contains(this.type)) {
+			Errors += "Seuls les types suivants sont acceptés : "+Arrays.toString(autorisedType)+"\n";
+		}
+    	String [] autorisedStatut = DefaultEnumeration.getStatut();
+    	if(!Arrays.asList(autorisedStatut).contains(this.statut)) {
+			Errors += "Seuls les statuts suivants sont acceptés : "+Arrays.toString(autorisedStatut)+"\n";
+		}
+    	String [] autorisedPriorite = DefaultEnumeration.getPriorite();
+    	if(!Arrays.asList(autorisedPriorite).contains(this.priorite)) {
+			Errors += "Seuls les priorités suivantes sont acceptées : "+Arrays.toString(autorisedPriorite)+"\n";
+		}
+		
+		return Errors;
+    	
     }
+    
+    @Override
+    public Evenement clone() throws CloneNotSupportedException {
+        return (Evenement) super.clone();
+    }
+
+
 }
