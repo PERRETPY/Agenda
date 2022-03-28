@@ -58,9 +58,19 @@
    interface: "agenda.application.interfaces.IntegrableInterface"
    autorun : false
    requirements : ["Agenda","Tableau des events"]
-   defaultPlugin: true
+   defaultPlugin: false
    pluginIntegrable : ["Tableau des events"]
    position: "footer"
    unique : false
    
+8 :
+   nom : "Moniteur"
+   nomClasse : "agenda.moniteur.Moniteur"
+   interface: ""
+   autorun : true
+   requirements : []
+   defaultPlugin: true
+   pluginIntegrable : []
+   position: ""
+   unique : false
  

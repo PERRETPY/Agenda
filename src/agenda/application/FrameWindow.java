@@ -20,13 +20,13 @@ import java.util.List;
 public class FrameWindow implements  Runnable {
     private static JFrame mainFrame;
     private static JPanel mainPanel;
-    private Object pluginActif;
+    private static Object pluginActif;
     private static JButton headerButtonActif;
     private static List<Evenement> allEventList;
     private static Box headerBox;
     private static Box topSeparatorBox;
     private static Box contentBox;
-    private List<JButton> allPluginButton;
+    private static List<JButton> allPluginButton;
 
     public FrameWindow() {
         this.initFrame();
@@ -39,41 +39,13 @@ public class FrameWindow implements  Runnable {
         
         FrameWindow.mainPanel =  new JPanel();
         FrameWindow.mainPanel.setLayout(new BoxLayout(FrameWindow.mainPanel, BoxLayout.Y_AXIS));
-        headerBox = new Box(BoxLayout.X_AXIS);
+        
         topSeparatorBox = new Box(BoxLayout.X_AXIS);
         contentBox = new Box(BoxLayout.X_AXIS);
         
-        HashMap<String, Descripteur> descriptorList = PluginLoader.getInstance().getDescripteurs();
-        Iterator it = descriptorList.entrySet().iterator();
-        allPluginButton = new ArrayList<JButton>();
-        
-        
-        while (it.hasNext()) {
-            HashMap.Entry<String, Descripteur> entry = (HashMap.Entry)it.next();
-            Descripteur descripteur = entry.getValue();
-            if (descripteur.getPosition()!= null && descripteur.getPosition().equals("header")) {
-                JButton btn = new JButton(descripteur.getName());
-                btn.setForeground(Color.WHITE);
-                btn.setBackground(new Color(70, 137, 112));
-        		
-                btn.setBorderPainted(false);
-                btn.setFont(new Font("Arial", Font.PLAIN, 15)); 
-                btn.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                    	pluginActif = PluginLoader.recupererIntancePlugin(descripteur);
-                        
-                        ((OnClickInterface) pluginActif).execute();
-                        headerButtonActif = btn;
-                        
-                        
-                    }
-                });
-                allPluginButton.add(btn);
-                headerBox.add(btn);
-            }
-        }
-        
-        
+        //
+        headerBox = new Box(BoxLayout.X_AXIS);
+        refreshHeaderButton();
         
         topSeparatorBox.add(new JSeparator());
         
@@ -118,12 +90,45 @@ public class FrameWindow implements  Runnable {
     public static void refreshPage () {
     	headerButtonActif.doClick();
     }
+    public static void refreshHeaderButton() {
+    	
+    	HashMap<String, Descripteur> descriptorList = PluginLoader.getInstance().getLoadedPlugin();
+        Iterator it = descriptorList.entrySet().iterator();
+        allPluginButton = new ArrayList<JButton>();
+        
+        headerBox.removeAll();
+        while (it.hasNext()) {
+            HashMap.Entry<String, Descripteur> entry = (HashMap.Entry)it.next();
+            Descripteur descripteur = entry.getValue();
+            if (descripteur.getPosition()!= null && descripteur.getPosition().equals("header")) {
+                JButton btn = new JButton(descripteur.getName());
+                btn.setForeground(Color.WHITE);
+                btn.setBackground(new Color(70, 137, 112));
+        		
+                btn.setBorderPainted(false);
+                btn.setFont(new Font("Arial", Font.PLAIN, 15)); 
+                btn.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                    	pluginActif = PluginLoader.recupererIntancePlugin(descripteur);
+                        
+                        ((OnClickInterface) pluginActif).execute();
+                        headerButtonActif = btn;
+                        
+                        
+                    }
+                });
+                allPluginButton.add(btn);
+                headerBox.add(btn);
+            }
+        }
+        if(allPluginButton.size()>0) {
+    		allPluginButton.get(0).doClick();
+    	}
+    }
     
     @Override
     public void run() {
-    	if(allPluginButton.size()>0) {
-    		allPluginButton.get(0).doClick();
-    	}
+    	
     }
 
 }

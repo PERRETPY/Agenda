@@ -1,6 +1,12 @@
 package agenda.plateforme;
 
 import agenda.plateforme.models.Descripteur;
+import agenda.plateforme.listener.Status;
+import agenda.application.FrameWindow;
+import agenda.moniteur.Moniteur;
+import agenda.plateforme.listener.Observer;
+import agenda.plateforme.listener.Subject;
+
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.FileInputStream;
@@ -10,7 +16,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
-public class PluginLoader {
+public class PluginLoader implements Subject, Observer {
     private final String CONF_PATH = "config.yml";
 
     /** The descripteurs. */
@@ -19,6 +25,7 @@ public class PluginLoader {
 
     /** The Constant INSTANCE. */
     private static final PluginLoader INSTANCE = new PluginLoader();
+    List<Observer> suscribers;
 
     public HashMap<String, Descripteur> getLoadedPlugin() {
         HashMap<String, Descripteur> loadedPlugin = new HashMap<String, Descripteur>();
@@ -37,6 +44,8 @@ public class PluginLoader {
      * Instantiates a new plugin loader.
      */
     public PluginLoader() {
+    	this.suscribers = new ArrayList<Observer>();
+    	
     }
 
     /**
@@ -82,7 +91,7 @@ public class PluginLoader {
         // Lancement des plugins autorun
         loader.loadAutoRun();
         
-        // loader.notifyInit();
+        loader.notifyInit();
 
     }
 
@@ -118,10 +127,10 @@ public class PluginLoader {
         		
         		// on recupère la liste de descripteurs des plugins requis
         		Collection <Descripteur> DescripteurRequisList = getDescripteursPluginRequis(descripteurLoaded).values();
+        		descripteurLoaded.setError(false);
         		//on parcoure la liste
                 for (Descripteur descripteurRequis : DescripteurRequisList) {
-                	System.out.println(descripteurLoaded.getName());
-                	System.out.println(descripteurLoaded.isLoaded());
+                	
                 	boolean found =false;
                 	for (Descripteur d :DescripteurLoadedList) {
                 		if (d.getClassName().equals(descripteurRequis.getClassName())) {
@@ -133,14 +142,14 @@ public class PluginLoader {
                 		// si des plugins requis n'est pas dans la liste des plugins chargés, on enregistre une erreur et on annule le chargement du plugin qui en depend
                 		descripteurLoaded.setLoaded(false);
                 		descripteurLoaded.setError(true);
-                		descripteurLoaded.setMessage(descripteurLoaded.getMessage() + "Echec du chargement ! Le plugin "+descripteurRequis.getName()+" est requis \n");
+                		//descripteurLoaded.setMessage(descripteurLoaded.getMessage() + "Echec du chargement ! Le plugin "+descripteurRequis.getName()+" est requis \n");
+                		notifySubscribers(descripteurLoaded.getName(),"Erreur","Echec du chargement ! Le plugin "+descripteurRequis.getName()+" est requis");
                 	}
                 }
              // s"il y a un erreur on incremente le compteur des erreurs
                 if (descripteurLoaded.isError()) {
                 	nbError++;
-                	System.out.println("error");
-                	System.out.println(descripteurLoaded.getMessage());
+                
                 	INSTANCE.descripteurs.put(descripteurLoaded.getName(), descripteurLoaded);
                 } 
         	}
@@ -194,7 +203,7 @@ public class PluginLoader {
                 descripteur.setAutoRun(pluginMap.get("autorun") != null? (Boolean) pluginMap.get("autorun"): false);
                 descripteur.setDefaultPlugin(pluginMap.get("defaultPlugin") != null? (Boolean) pluginMap.get("defaultPlugin"): false);
                 descripteur.setUnique(pluginMap.get("unique") != null? (Boolean) pluginMap.get("unique"): false);
-                System.out.println(descripteur.isUnique());
+                
                 descripteur.setPosition((String) pluginMap.get("position"));
                 descripteur.setPluginIntegrable((List<String>) pluginMap.get("pluginIntegrable"));
                 List<String> reqs = (List<String>) pluginMap.get("requirements");
@@ -238,10 +247,9 @@ public class PluginLoader {
             // On recupère tous les plugins integrables au plugin entrée en paramètre
         	boolean found = false;
             if (d.getPluginIntegrable() != null ) { //&& Arrays.asList(d.getPluginIntegrable()).contains(pluginName)
-            	System.out.println(d.getName());
+            	
             	for (String name : d.getPluginIntegrable()) {
-            		System.out.println(name);
-            		System.out.println(pluginName);
+            		
             		if (name.equals(pluginName)) {
             			found =true;
             			break;
@@ -292,14 +300,17 @@ public class PluginLoader {
      */
     public static Object recupererIntancePlugin(Descripteur descripteur) {
     	
+    	
         try {
             // Instanciation de la classe avec le contructeur, avec ou sans paramÃ¨tres
         	Class classe = Class.forName(descripteur.getClassName());
             Constructor constructor = classe.getConstructor();
+            //INSTANCE.notifySubscribers(descripteur.getName(),"Instancer","L'insance du plugin a été recupéré avec succès");
             return constructor.newInstance();
 
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException
                 | SecurityException | IllegalArgumentException | InvocationTargetException e) {
+        	//INSTANCE.notifySubscribers(descripteur.getName(),"Erreur","Une erreur s'est produite lors de la récuperation de l'instance");
             e.printStackTrace();
         }
         return null;
@@ -332,10 +343,12 @@ public class PluginLoader {
                     return null;
                 }
                 result = plClass.getDeclaredConstructor().newInstance();
+                //INSTANCE.notifySubscribers(loadPluginDescriptor.getName(),"Instancier","Le plugin a été instancier avec succès");
 
             } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
+                //INSTANCE.notifySubscribers(loadPluginDescriptor.getName(),"Erreur","Erreur lors de l'instanciation");
             }
 
             return result;
@@ -354,7 +367,7 @@ public class PluginLoader {
         if (pluginNeedToBeLoad != null) {
         	// recupère le nom de l'interface
             String interfaceName = pluginNeedToBeLoad.getInterfaceImpl();
-            System.out.println(interfaceName);
+            
             // on desactive les plugins dejà chargé appartenant à cette interface si celui-ci doit etre unique
             System.out.println("isUnique");
             System.out.println(pluginNeedToBeLoad.isUnique());
@@ -366,6 +379,7 @@ public class PluginLoader {
             pluginNeedToBeLoad.setLoaded(true);
             //on met à jour la liste de nos descripteurs
             INSTANCE.descripteurs.put(pluginName, pluginNeedToBeLoad);
+            INSTANCE.notifySubscribers(pluginNeedToBeLoad.getName(),"Charger","Le plugin est chargé");
         }
         
     }
@@ -384,6 +398,33 @@ public class PluginLoader {
                 dsc.setLoaded(false);
                 // on met à jour la liste de nos descripteurs
                 descripteurList.put(dsc.getName(), dsc);
+                INSTANCE.notifySubscribers(dsc.getName(),"Disponible","Le plugin a été stoppé suite au chargement d'un plugin unique");
+            }
+        }
+    }
+    
+    // on desactive les plugins dejà chargé appartenant au plugin passée en paramètre
+    public void unloadPluginByName(String pluginName) {
+    	// recupère la liste des descripteurs
+        HashMap<String, Descripteur> descripteurList = INSTANCE.getDescripteurs();
+        // parcours la liste
+        for (Map.Entry<String, Descripteur> stringDescripteurEntry : descripteurList.entrySet()) {
+        	
+            if (stringDescripteurEntry.getValue().getName().equals(pluginName)
+                && stringDescripteurEntry.getValue().isLoaded()) {
+            	// on desactive le plugin dejà chargé si ce n'est pas un plugin par defaut
+            	if (stringDescripteurEntry.getValue().isDefaultPlugin()) {
+            		// error 
+            		this.notifySubscribers(stringDescripteurEntry.getValue().getName(),"Charger","Echec de l'arret ! Les plugins par defaut ne peuvent pas être stopper");
+            	} else {
+            		Descripteur dsc = stringDescripteurEntry.getValue();
+                    dsc.setLoaded(false);
+                    // on met à jour la liste de nos descripteurs
+                    descripteurList.put(dsc.getName(), dsc);
+                    this.notifySubscribers(stringDescripteurEntry.getValue().getName(),"Disponible","Le plugin a été stoppé");
+            	}
+            	break;
+                
             }
         }
     }
@@ -425,5 +466,63 @@ public class PluginLoader {
         }
         return descripteurListByInterface;
     }
+
+	@Override
+	public void addSubscriber(Observer observer) {
+		if(this.suscribers==null) {
+			this.suscribers = new ArrayList<Observer>();
+		}
+		this.suscribers.add(observer);
+	}
+
+	@Override
+	public void removeSubscriber(Observer observer) {
+		if (this.suscribers.contains(observer)) {
+			this.suscribers.remove(observer);
+		}
+	}
+
+	@Override
+	public void notifySubscribers(String name, String status, String message) {
+		for(Observer suscriber : this.suscribers) {
+           suscriber.update(name,status,message);
+        }
+	}
+	
+	/**
+	 * Notifie les plugins disponibles dans la config non chargÃ©s Ã  l'initialisation de la plateforme (les chargÃ©s ont dÃ©jÃ  Ã©tÃ© notifiÃ©s dans autorun)
+	 */
+	private void notifyInit() {
+		for (Descripteur d : INSTANCE.getDescripteurs().values()){
+			if(!d.isLoaded()) {
+				notifySubscribers(d.getName(),"Disponible","Le plugin est disponible dans la conf");
+			}
+			else {
+				if(!d.getName().equals("Moniteur")) {
+					notifySubscribers(d.getName(),"Charger","Le plugin est chargé");
+				}
+					
+
+			}
+		}
+		//Moniteur.getInstance().addSubscriber(INSTANCE);
+		
+	}
+
+	@Override
+	public void update(String name, String status, String message) {
+		// TODO Auto-generated method stub
+		System.out.println(name);
+		System.out.println(status);
+		if (status.equals("charger")) {
+			PluginLoader.loadPluginInList(name);
+			
+		} else if (status.equals("stopper")){
+			unloadPluginByName(name);
+			
+		}
+		this.checkRequirement();
+		FrameWindow.refreshHeaderButton();
+	}
 
 }
