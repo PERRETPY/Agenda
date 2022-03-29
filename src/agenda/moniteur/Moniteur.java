@@ -57,8 +57,8 @@ public class Moniteur extends JFrame implements Runnable,Subject, Observer {
 		this.addSubscriber(PluginLoader.getInstance());
 		listePlugins = new HashMap<String, String>();
 		
-		setTitle("Monitor");
-		setBounds(300, 90, 400, 500);
+		setTitle("Moniteur");
+		setBounds(100, 90, 400, 500);
 		setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));	
 		
 		labelList = new JLabel("Liste des plugins charges : ",SwingConstants.LEFT);
@@ -141,8 +141,8 @@ public class Moniteur extends JFrame implements Runnable,Subject, Observer {
 	private void addHistoricLine(String time, String plugin, String status, String message) {
 		
 		dlm.addElement(time+" : "+plugin+" ---> "+ message);
-		if(dlm.size() > 5) {
-			//dlm.remove(0);
+		if(dlm.size() > 8) {
+			dlm.remove(0);
 		}
 	}
 	

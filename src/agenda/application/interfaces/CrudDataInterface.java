@@ -7,5 +7,5 @@ import agenda.models.Evenement;
 public interface CrudDataInterface extends Runnable{
 
 	 List<Evenement> getAllEventList();
-
+	 void saveAllEventList();
 }

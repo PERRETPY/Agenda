@@ -132,18 +132,26 @@ public class PluginLoader implements Subject, Observer {
                 for (Descripteur descripteurRequis : DescripteurRequisList) {
                 	
                 	boolean found =false;
-                	for (Descripteur d :DescripteurLoadedList) {
-                		if (d.getClassName().equals(descripteurRequis.getClassName())) {
-                			found = true;
-                		}
+                	if (descripteurRequis != null) {
+                		for (Descripteur d :DescripteurLoadedList) {
+                    		if (d.getClassName().equals(descripteurRequis.getClassName())) {
+                    			found = true;
+                    		}
+                    	}
                 	}
+                	
                 	
                 	if (!found) {
                 		// si des plugins requis n'est pas dans la liste des plugins chargés, on enregistre une erreur et on annule le chargement du plugin qui en depend
                 		descripteurLoaded.setLoaded(false);
                 		descripteurLoaded.setError(true);
                 		//descripteurLoaded.setMessage(descripteurLoaded.getMessage() + "Echec du chargement ! Le plugin "+descripteurRequis.getName()+" est requis \n");
-                		notifySubscribers(descripteurLoaded.getName(),"Erreur","Echec du chargement ! Le plugin "+descripteurRequis.getName()+" est requis");
+                		if (descripteurRequis != null) {
+                			notifySubscribers(descripteurLoaded.getName(),"Erreur","Echec du chargement ! Le plugin "+descripteurRequis.getName()+" est requis");
+                		} else {
+                			notifySubscribers(descripteurLoaded.getName(),"Erreur","Echec du chargement ! L'un des plugins requis est inconnus");
+                		}
+                		
                 	}
                 }
              // s"il y a un erreur on incremente le compteur des erreurs
@@ -281,7 +289,12 @@ public class PluginLoader implements Subject, Observer {
 
             try {
             	//ajoute la description du plugin dans le tableau 
-                requirements.put(descripteur.getName(), descripteur);
+            	if (descripteur != null) {
+            		requirements.put(descripteur.getName(), descripteur);
+            	} else {
+            		requirements.put(requirementList.get(i),null);
+            	}
+                
             } catch (Exception e) {
                 e.printStackTrace();
             }

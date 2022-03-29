@@ -91,11 +91,11 @@ public class CrudDataEvenement implements CrudDataInterface {
 
     }
     
-    private void addData(String filename, Evenement obj) {
+    private void addData(String eventCsv) {
         try {
-            FileWriter bw1 = new FileWriter(filename, true);
+            FileWriter bw1 = new FileWriter(strPathToDataEvent, true);
             bw1.write("\n");
-            bw1.write(this.toCSV(obj));
+            bw1.write(eventCsv);
             bw1.flush();
         } catch (IOException e) {
             e.printStackTrace();
@@ -105,7 +105,10 @@ public class CrudDataEvenement implements CrudDataInterface {
 	public String toCSV(Evenement event) {
 		// replace ; par , pour chaque attribut modifiable via un textField pour eviter que le csv plante
     	if (event.getErrors().isEmpty()) {
-    		return "";
+    		return event.getJour()+";"+event.getHeureDebut()+";"+event.getHeureFin()+";"+event.getTitre()+";"
+    				+event.getType()+";"+event.getDescription()+";"+event.getOrganisateur()+";"+event.getParticipant()+";"
+    				+event.getLieu()+";"+event.getStatut()+";"+event.getPriorite()+";"+event.getCommentaire()+";"
+    				+event.getDateCreation()+";"+event.getDateUpdate()+";end";
     	}
         return null;
     }
@@ -115,7 +118,35 @@ public class CrudDataEvenement implements CrudDataInterface {
 		// TODO Auto-generated method stub
 		this.eventList = getAllEventList();
         FrameWindow.setAllEventList(this.eventList);
+        FrameWindow.crudInstance = this;
 	}
+
+
+	@Override
+	public void saveAllEventList() {
+		// TODO Auto-generated method stub
+		PrintWriter writer;
+		try {
+			//effacement des données precedentes
+			writer = new PrintWriter(strPathToDataEvent);
+			writer.print("id;jour;heureDebut;heureFin;titre;type;description;organisateur;participant;lieu;statut;priorite;commentaire;dateCreation;dateUpdate;endRow");
+			writer.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		int i = 1;
+		for(Evenement event : this.eventList) {
+			String eventCsv = toCSV(event);
+			if (eventCsv!=null) {
+				// enregistrement de l'evenement
+				addData(i+";"+eventCsv);
+				i++;
+			}
+		}
+	}
+
 
 
 

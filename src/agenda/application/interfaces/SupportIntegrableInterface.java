@@ -13,11 +13,11 @@ public interface SupportIntegrableInterface {
 
 	public static final String name = "";
 	
-	public static HashMap<String, List<Component>> getExternalPluginComponent() {
+	public static HashMap<String, List<Component>> getExternalPluginComponent(String name) {
 		// TODO Auto-generated method stub
 		//footerBox.add((Component) component);
 		
-		HashMap<String, Descripteur> descripteurs = PluginLoader.getDescripteursPluginIntegrable(DisplayTabEvent.name,true);
+		HashMap<String, Descripteur> descripteurs = PluginLoader.getDescripteursPluginIntegrable(name,true);
 		HashMap<String, List<Component>> externalComponent = new HashMap<String, List<Component>>();
 		
 		List<Component> header = new ArrayList<Component>();

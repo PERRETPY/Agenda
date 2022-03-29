@@ -85,7 +85,7 @@ public class CreateEvent implements CreateInterface{
 		
 		JLabel type = new JLabel("Type"); 
 		type.setFont(new Font("Arial", Font.PLAIN, 20)); 
-		contentPanel.add(type); 
+		contentPanel.add(type);  
 
 		this.typeComboBox = new JComboBox(DefaultEnumeration.getType());
 		contentPanel.add(this.typeComboBox); 
@@ -184,7 +184,8 @@ public class CreateEvent implements CreateInterface{
 		
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 		LocalDateTime now = LocalDateTime.now();
-		String date_creation = dtf.format(now);
+		date_creation = dtf.format(now);
+		
 	}
 	private void saveValueInput() {
 		Evenement new_event = new Evenement(jourInput,heureDebutInput,heureFinInput,titreInput,typeInput,descriptionInput,organisateurInput,

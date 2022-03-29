@@ -3,6 +3,8 @@ package agenda.tiers;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -61,6 +63,10 @@ public class SaveUpdateDispalyCard implements IntegrableInterface {
 			updated_event.setType((String) DisplayTabEvent.table.getValueAt(index, 6));
 			updated_event.setOrganisateur((String) DisplayTabEvent.table.getValueAt(index, 7));
 			
+			DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+			LocalDateTime now = LocalDateTime.now();
+			String date_update = dtf.format(now);
+			updated_event.setDateUpdate(date_update);
 			
 			String Errors = updated_event.getErrors();
 			if(!Errors.isEmpty()) {

@@ -6,12 +6,14 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultRowSorter;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -20,6 +22,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.RowSorter;
+import javax.swing.SortOrder;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
@@ -52,9 +56,14 @@ public class DisplayTabEvent implements DisplayInterface, SupportIntegrableInter
 		this.contentBox = new Box(BoxLayout.Y_AXIS);
 		
 		JLabel title = new JLabel("Liste des evenements", SwingConstants.CENTER); 
-		title.setBorder(new EmptyBorder(0, 180, 10, 10));
+		//title.setBorder(new EmptyBorder(0, 180, 10, 10));
 		title.setFont(new Font("Arial", Font.PLAIN, 30)); 
-		this.contentBox.add(title); 
+		
+		JPanel header = new JPanel();
+		header.setLayout(new FlowLayout(FlowLayout.CENTER));
+		header.add(title);
+		
+		this.contentBox.add(header); 
 		
 		if (eventList == null) {
 			return this.contentBox;
@@ -99,8 +108,9 @@ public class DisplayTabEvent implements DisplayInterface, SupportIntegrableInter
  		scrollPane.setBounds(20, 150, 600, 400);
  		this.contentBox.add(scrollPane);
  		
+ 		/*
  		
- 		
+ 		*/
  		
  		
  		//Box footerBox = new Box(BoxLayout.X_AXIS);
@@ -122,10 +132,10 @@ public class DisplayTabEvent implements DisplayInterface, SupportIntegrableInter
 	@Override
 	public void execute() {
 		// TODO Auto-generated method stub
-		HashMap<String, List<Component>> externalComponent = SupportIntegrableInterface.getExternalPluginComponent();
+		HashMap<String, List<Component>> externalComponent = SupportIntegrableInterface.getExternalPluginComponent(name);
 		footerBox = new JPanel();
 		footerBox.setLayout(new FlowLayout(FlowLayout.CENTER));
-		System.out.println(externalComponent);
+		
 		List<Component> externalFooterComponent = externalComponent.get("footer");
 		for (Component c : externalFooterComponent) {
 			System.out.println(c);

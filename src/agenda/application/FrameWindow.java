@@ -5,6 +5,7 @@ import agenda.application.interfaces.OnClickInterface;
 import agenda.models.Evenement;
 import agenda.plateforme.PluginLoader;
 import agenda.plateforme.models.Descripteur;
+import agenda.tiers.CrudDataEvenement;
 
 import javax.swing.*;
 import java.awt.*;
@@ -27,6 +28,7 @@ public class FrameWindow implements  Runnable {
     private static Box topSeparatorBox;
     private static Box contentBox;
     private static List<JButton> allPluginButton;
+    public static CrudDataEvenement crudInstance;
 
     public FrameWindow() {
         this.initFrame();
@@ -64,6 +66,7 @@ public class FrameWindow implements  Runnable {
         FrameWindow.mainFrame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent windowEvent){
             	System.out.println("Save data to csv");
+            	crudInstance.saveAllEventList();
                 System.exit(0);
             }
         });

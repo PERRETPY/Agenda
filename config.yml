@@ -37,7 +37,7 @@
    interface: "agenda.application.interfaces.CreateInterface"
    autorun : false
    requirements : ["Agenda"]
-   defaultPlugin: false
+   defaultPlugin: true
    position: "header"
    unique : false
    
@@ -58,7 +58,7 @@
    interface: "agenda.application.interfaces.IntegrableInterface"
    autorun : false
    requirements : ["Agenda","Tableau des events"]
-   defaultPlugin: false
+   defaultPlugin: true
    pluginIntegrable : ["Tableau des events"]
    position: "footer"
    unique : false
@@ -74,3 +74,36 @@
    position: ""
    unique : false
  
+9 :
+   nom : "Trie tableau"
+   nomClasse : "agenda.tiers.TrieData"
+   interface: "agenda.application.interfaces.IntegrableInterface"
+   autorun : false
+   requirements : ["Agenda","Tableau des events"]
+   defaultPlugin: false
+   pluginIntegrable : ["Tableau des events"]
+   position: "footer"
+   unique : false
+   
+10 :
+   nom : "informations detailles"
+   nomClasse : "agenda.tiers.ShowMoreData"
+   interface: "agenda.application.interfaces.IntegrableInterface"
+   autorun : false
+   requirements : ["Agenda","Tableau des events"]
+   defaultPlugin: false
+   pluginIntegrable : ["Tableau des events"]
+   position: "footer"
+   unique : false
+   
+11 :
+   nom : "Recherche par date"
+   nomClasse : "agenda.tiers.SearchByDate"
+   interface: "agenda.application.interfaces.IntegrableInterface"
+   autorun : false
+   requirements : ["Agenda","Liste des events"]
+   defaultPlugin: false
+   pluginIntegrable : ["Liste des events"]
+   position: "footer"
+   unique : false 
+   

@@ -22,6 +22,7 @@ public class Evenement implements ValidateurInterface, Cloneable {
     private String commentaire;
     private String dateCreation;
     private String dateUpdate;
+    private boolean hide;
 
     
 	public Evenement(String id, String jour, String heureDebut, String heureFin, String titre, String type,
@@ -222,7 +223,17 @@ public class Evenement implements ValidateurInterface, Cloneable {
 	}
 
   
-    @Override
+    public boolean isHide() {
+		return hide;
+	}
+
+
+	public void setHide(boolean hide) {
+		this.hide = hide;
+	}
+
+
+	@Override
     public String getErrors() {
     	String Errors = "";
     	if (!ValidateurInterface.isValidDate(this.jour)) {
